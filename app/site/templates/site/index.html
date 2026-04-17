@@ -3,42 +3,88 @@
 {% block title %}Início - Ecossistema Saúde{% endblock %}
 
 {% block extra_style %}
-.hero { background: #f8f9fa; padding: 100px 0; }
-.hero h1 { font-size: 3.5rem; font-weight: 800; color: #212529; }
+.hero { 
+    /* Substitui o padding fixo por altura relativa para abraçar a tela toda */
+    min-height: 85vh; 
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    display: flex;
+    align-items: center;
+}
+/* Tipografia fluida: ajusta o tamanho do H1 dependendo da tela */
+.hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; color: #1a1d20; letter-spacing: -1px; }
+.feature-card { transition: transform 0.3s ease; border-radius: 1rem; }
+.feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important; }
 {% endblock %}
 
 {% block content %}
 <section class="hero text-center">
-    <div class="container">
-        <h1 class="mb-4">Gestão de Vidas com <span class="text-primary">Inteligência.</span></h1>
-        <p class="lead text-muted mb-5 mx-auto" style="max-width: 700px;">
-            A plataforma completa para RHs que buscam eficiência operacional e controle absoluto sobre o faturamento de benefícios de saúde.
-        </p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="#funcionalidades" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">Conhecer Soluções</a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark btn-lg rounded-pill px-5">Acesso Portal</a>
+    <div class="container px-4 px-md-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <h1 class="mb-4">Gestão de Vidas com <span class="text-primary">Inteligência.</span></h1>
+                <p class="lead text-muted mb-5 mx-auto" style="font-size: clamp(1rem, 2vw, 1.25rem);">
+                    A plataforma completa para RHs que buscam eficiência operacional e controle absoluto sobre o faturamento de benefícios de saúde.
+                </p>
+                
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 px-3 px-sm-0">
+                    <a href="#funcionalidades" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow-sm fw-bold">
+                        Conhecer Soluções
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark btn-lg rounded-pill px-5 py-3 fw-bold">
+                        Acesso Portal
+                    </a>
+                </div>
+                
+                <div class="mt-5 pt-4 opacity-50 d-none d-md-block">
+                    <p class="small text-uppercase fw-bold tracking-wide">Plataforma 100% em nuvem e adequada à LGPD</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <section id="funcionalidades" class="py-5 bg-white">
-    <div class="container py-5 text-center">
-        <h2 class="fw-bold mb-5">Funcionalidades do Ecossistema</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <i class="fas fa-id-card-alt fa-3x text-primary mb-3"></i>
-                <h5 class="fw-bold">Elegibilidade Instantânea</h5>
-                <p class="text-muted small">Inclusão e exclusão de funcionários via portal, garantindo que o faturamento acompanhe o giro da empresa.</p>
+    <div class="container py-5">
+        <div class="text-center mb-5 pb-3">
+            <h2 class="fw-bold">Funcionalidades do Ecossistema</h2>
+            <p class="text-muted">Desenhado para simplificar o seu dia a dia.</p>
+        </div>
+        
+        <div class="row g-4 g-lg-5 justify-content-center text-center">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 p-4 feature-card">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="fas fa-id-card-alt fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold">Elegibilidade Instantânea</h5>
+                    <p class="text-muted small mb-0">Inclusão e exclusão de funcionários via portal, garantindo que o faturamento acompanhe o giro da empresa em tempo real.</p>
+                </div>
             </div>
-            <div class="col-md-4">
-                <i class="fas fa-barcode fa-3x text-primary mb-3"></i>
-                <h5 class="fw-bold">Boleto Digital</h5>
-                <p class="text-muted small">Integração bancária para emissão de boletos e QR Code PIX diretamente no portal do cliente.</p>
+            
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 p-4 feature-card">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="fas fa-barcode fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold">Faturamento Autônomo</h5>
+                    <p class="text-muted small mb-0">Motor inteligente de cálculos. Fechamento de faturas e boletos digitais gerados com um clique diretamente no portal do cliente.</p>
+                </div>
             </div>
-            <div class="col-md-4">
-                <i class="fas fa-shield-virus fa-3x text-primary mb-3"></i>
-                <h5 class="fw-bold">Privacidade Total</h5>
-                <p class="text-muted small">Dados sensíveis protegidos sob as mais rigorosas normas da LGPD, garantindo segurança jurídica para sua empresa.</p>
+            
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 p-4 feature-card">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="fas fa-shield-virus fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold">Privacidade & Compliance</h5>
+                    <p class="text-muted small mb-0">Dados sensíveis protegidos sob as rigorosas normas da LGPD, garantindo segurança jurídica para o RH da sua empresa.</p>
+                </div>
             </div>
         </div>
     </div>

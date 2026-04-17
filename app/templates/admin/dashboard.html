@@ -1,53 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>SaaS Saúde - Dashboard Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .card-kpi { border: none; border-radius: 15px; transition: 0.3s; }
-        .card-kpi:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .navbar-user { font-size: 0.9rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px; margin-left: 15px; }
-    </style>
-</head>
-<body class="bg-light">
+{% extends "base_portal.html" %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="{{ url_for('admin.dashboard') }}">
-            <i class="fas fa-heartbeat me-2 text-primary"></i>Ecossistema Saúde
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="navbar-nav me-auto">
-                <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-                <a class="nav-link" href="{{ url_for('admin.listar_empresas') }}">Empresas</a>
-                <a class="nav-link" href="{{ url_for('admin.listar_trabalhadores') }}">Trabalhadores</a>
-                <a class="nav-link" href="{{ url_for('admin.menu_faturamento') }}">Faturamento</a>
-                <a class="nav-link" href="{{ url_for('admin.listar_usuarios') }}">Usuários</a>
-            </div>
-            <div class="navbar-nav align-items-center">
-                <div class="navbar-user text-light d-none d-lg-block">
-                    <i class="far fa-user-circle me-1"></i> {{ current_user.email }}
-                </div>
-                <a class="nav-link text-danger fw-bold ms-lg-3" href="{{ url_for('auth.logout') }}">
-                    <i class="fas fa-sign-out-alt me-1"></i> Sair
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
+{% block title %}Dashboard Admin - SaaS Saúde{% endblock %}
 
+{% block extra_style %}
+<style>
+    .card-kpi { border: none; border-radius: 15px; transition: 0.3s; }
+    .card-kpi:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+</style>
+{% endblock %}
+
+{% block content %}
 <div class="container pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold mb-0">Painel Administrativo</h2>
         <span class="badge bg-white text-dark border shadow-sm p-2 px-3">
-            <i class="far fa-calendar-alt me-2"></i>Competência Atual: {{ now.strftime('%m/%Y') if now else '' }}
+            <i class="far fa-calendar-alt me-2"></i>Visão Geral do Sistema
         </span>
     </div>
 
@@ -57,7 +25,7 @@
                 <div class="card-body d-flex align-items-center">
                     <div class="icon-box bg-primary text-white me-3"><i class="fas fa-building"></i></div>
                     <div>
-                        <h6 class="text-muted mb-0 small text-uppercase">Empresas</h6>
+                        <h6 class="text-muted mb-0 small text-uppercase fw-bold">Empresas Ativas</h6>
                         <h3 class="fw-bold mb-0">{{ total_empresas }}</h3>
                     </div>
                 </div>
@@ -68,7 +36,7 @@
                 <div class="card-body d-flex align-items-center">
                     <div class="icon-box bg-success text-white me-3"><i class="fas fa-users"></i></div>
                     <div>
-                        <h6 class="text-muted mb-0 small text-uppercase">Vidas Ativas</h6>
+                        <h6 class="text-muted mb-0 small text-uppercase fw-bold">Vidas Ativas</h6>
                         <h3 class="fw-bold mb-0">{{ total_vidas }}</h3>
                     </div>
                 </div>
@@ -79,8 +47,8 @@
                 <div class="card-body d-flex align-items-center">
                     <div class="icon-box bg-warning text-dark me-3"><i class="fas fa-hand-holding-usd"></i></div>
                     <div>
-                        <h6 class="text-muted mb-0 small text-uppercase">Receita Mensal</h6>
-                        <h3 class="fw-bold mb-0">R$ {{ "{:,.2f}".format(receita_mensal).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h3>
+                        <h6 class="text-muted mb-0 small text-uppercase fw-bold">Receita Mensal Prevista</h6>
+                        <h3 class="fw-bold mb-0 text-success">R$ {{ "{:,.2f}".format(receita_mensal).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h3>
                     </div>
                 </div>
             </div>
@@ -90,13 +58,13 @@
     <div class="row g-4">
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100 p-3">
-                <h5 class="fw-bold mb-4">Status da Base</h5>
+                <h5 class="fw-bold mb-4">Status das Empresas</h5>
                 <canvas id="chartStatus"></canvas>
             </div>
         </div>
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
+                <div class="card-header bg-white py-3 border-bottom-0">
                     <h5 class="fw-bold mb-0">Atividades Financeiras Recentes</h5>
                 </div>
                 <div class="card-body p-0">
@@ -114,11 +82,11 @@
                                 <tr>
                                     <td class="ps-4 fw-bold text-dark">{{ fatura.empresa.razao_social }}</td>
                                     <td class="text-primary fw-bold">R$ {{ "{:,.2f}".format(fatura.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}</td>
-                                    <td><span class="badge rounded-pill {{ 'bg-warning' if fatura.status == 'Pendente' else 'bg-success' }}">{{ fatura.status }}</span></td>
+                                    <td><span class="badge rounded-pill {{ 'bg-warning text-dark' if fatura.status == 'Pendente' else 'bg-success' }}">{{ fatura.status }}</span></td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="3" class="text-center py-4 text-muted">Nenhuma atividade registrada.</td>
+                                    <td colspan="3" class="text-center py-5 text-muted">Nenhuma fatura registrada recentemente.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -129,7 +97,10 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('chartStatus').getContext('2d');
     new Chart(ctx, {
@@ -148,6 +119,4 @@
         }
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
