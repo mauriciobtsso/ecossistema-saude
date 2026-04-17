@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Saúde - Financeiro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .table-responsive { border-radius: 10px; }
+        .card-stat { transition: transform 0.2s; }
+        .card-stat:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('admin.dashboard') }}">
+            <i class="fas fa-heartbeat me-2 text-primary"></i>Ecossistema Saúde
+        </a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+            <a class="nav-link" href="{{ url_for('admin.listar_empresas') }}">Empresas</a>
+            <a class="nav-link" href="{{ url_for('admin.listar_trabalhadores') }}">Trabalhadores</a>
+            <a class="nav-link active" href="{{ url_for('admin.menu_faturamento') }}">Faturamento</a>
+            <a class="nav-link" href="{{ url_for('admin.listar_usuarios') }}">Usuários</a>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold text-dark mb-0">Gestão Financeira</h2>
+            <p class="text-muted">Controle de faturas e fechamento de competências.</p>
+        </div>
+        <div class="col-md-6 d-flex justify-content-md-end">
+            <form action="{{ url_for('admin.gerar_faturamento') }}" method="POST" class="d-flex gap-2 bg-white p-3 rounded shadow-sm border">
+                <div>
+                    <label class="small fw-bold text-muted d-block">Mês de Referência</label>
+                    <input type="month" name="competencia" class="form-control form-control-sm" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm align-self-end">
+                    <i class="fas fa-sync me-1"></i> Gerar Faturas
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4 text-center">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-primary border-5 card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted small text-uppercase fw-bold">Total a Receber</h6>
+                    <h3 class="fw-bold text-primary">R$ {{ "{:,.2f}".format(total_pendente).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-success border-5 card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted small text-uppercase fw-bold">Total Recebido</h6>
+                    <h3 class="fw-bold text-success">R$ {{ "{:,.2f}".format(total_pago).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-dark text-white card-stat">
+                <div class="card-body">
+                    <h6 class="text-light small text-uppercase fw-bold">Faturas Geradas</h6>
+                    <h3 class="fw-bold text-white">{{ faturas|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Empresa</th>
+                            <th>Competência</th>
+                            <th>Vidas</th>
+                            <th>Valor Total</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fatura in faturas %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ fatura.empresa.razao_social }}</div>
+                                <small class="text-muted">CNPJ: {{ fatura.empresa.cnpj }}</small>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ fatura.competencia }}</span></td>
+                            <td>{{ fatura.quantidade_vidas }}</td>
+                            <td class="fw-bold text-primary">R$ {{ "{:,.2f}".format(fatura.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}</td>
+                            <td>{{ fatura.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <span class="badge rounded-pill {{ 'bg-warning text-dark' if fatura.status == 'Pendente' else 'bg-success' }}">
+                                    {{ fatura.status }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    {% if fatura.status == 'Pendente' %}
+                                    <form action="{{ url_for('admin.baixar_fatura', id=fatura.id) }}" method="POST" onsubmit="return confirm('Confirmar pagamento desta fatura?');">
+                                        <button type="submit" class="btn btn-sm btn-success" title="Confirmar Pagamento">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                    <a href="{{ url_for('admin.imprimir_fatura', id=fatura.id) }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir Recibo">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-file-invoice-dollar fa-3x mb-3 opacity-25"></i>
+                                <p>Nenhuma fatura gerada. Selecione o mês acima e clique em "Gerar Faturas".</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

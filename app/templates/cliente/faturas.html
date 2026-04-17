@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Faturas - {{ empresa.razao_social }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .navbar-cliente { background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%); }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-cliente mb-4 shadow">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('cliente.dashboard', slug=empresa.slug) }}">
+            <i class="fas fa-building me-2"></i>{{ empresa.razao_social }}
+        </a>
+        <div class="navbar-nav me-auto">
+            <a class="nav-link" href="{{ url_for('cliente.dashboard', slug=empresa.slug) }}">Meu Painel</a>
+            <a class="nav-link" href="{{ url_for('cliente.listar_trabalhadores', slug=empresa.slug) }}">Funcionários</a>
+            <a class="nav-link active" href="#">Minhas Faturas</a>
+        </div>
+        <div class="navbar-nav">
+            <a class="btn btn-sm btn-outline-light fw-bold" href="{{ url_for('auth.logout') }}">Sair</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; background-color: #f8faff; border-left: 5px solid #0d6efd !important;">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold text-primary mb-1">Faturamento da Competência: {{ competencia_atual }}</h5>
+                {% if fatura_mes_gerada %}
+                    <p class="text-success mb-0"><i class="fas fa-check-circle me-1"></i> A fatura deste mês já foi gerada. Acompanhe abaixo.</p>
+                {% else %}
+                    <p class="text-muted mb-0">Sua fatura ainda não foi gerada. Clique ao lado para emitir o documento e o boleto antes do vencimento (Dia {{ empresa.dia_vencimento }}).</p>
+                {% endif %}
+            </div>
+            
+            {% if not fatura_mes_gerada %}
+            <form action="{{ url_for('cliente.gerar_fatura', slug=empresa.slug) }}" method="POST">
+                <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4 py-2" onclick="return confirm('Deseja fechar a competência e gerar a fatura deste mês? O valor será calculado com base nas vidas ativas de hoje.');">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Gerar Fatura Agora
+                </button>
+            </form>
+            {% else %}
+                <button class="btn btn-secondary px-4 py-2 disabled">Fatura Gerada</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">Histórico Financeiro</h4>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-uppercase small">
+                        <tr>
+                            <th class="ps-4">Competência</th>
+                            <th>Vencimento</th>
+                            <th>Vidas</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Pagamento / Documento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in faturas %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ f.competencia }}</td>
+                            <td>{{ f.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ f.quantidade_vidas }}</td>
+                            <td class="text-dark fw-bold">R$ {{ "{:,.2f}".format(f.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}</td>
+                            <td>
+                                <span class="badge rounded-pill {{ 'bg-success' if f.status == 'Pago' else 'bg-warning text-dark' }}">
+                                    {{ f.status }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    {% if f.boleto_url %}
+                                        <a href="{{ f.boleto_url }}" target="_blank" class="btn btn-sm btn-success fw-bold shadow-sm" title="Abrir Boleto Oficial">
+                                            <i class="fas fa-barcode me-1"></i> Pagar Boleto
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <a href="{{ url_for('admin.imprimir_fatura', id=f.id) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver Detalhes das Vidas">
+                                        <i class="fas fa-file-invoice"></i> Detalhes
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">Nenhuma fatura gerada até o momento.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

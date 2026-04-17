@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Editar' if trabalhador else 'Novo' }} Colaborador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+    <div class="container">
+        <span class="navbar-brand fw-bold">
+            <i class="fas fa-user-edit me-2"></i>Gestão de Vidas Corporativas
+        </span>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h4 class="mb-0 fw-bold text-primary">{{ 'Editar Cadastro' if trabalhador else 'Cadastrar Novo Colaborador' }}</h4>
+                </div>
+                <div class="card-body p-4 pt-2">
+                    <form method="POST">
+                        
+                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2 mt-2">Dados Pessoais</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Nome Completo *</label>
+                                <input type="text" name="nome" class="form-control bg-light" value="{{ trabalhador.nome if trabalhador else '' }}" required placeholder="Ex: João da Silva">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">CPF *</label>
+                                <input type="text" name="cpf" id="cpf" class="form-control bg-light" value="{{ trabalhador.cpf if trabalhador else '' }}" required placeholder="000.000.000-00" maxlength="14">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Data de Nascimento</label>
+                                <input type="date" name="data_nascimento" class="form-control bg-light" value="{{ trabalhador.data_nascimento if trabalhador and trabalhador.data_nascimento else '' }}">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Filiação (Nome da Mãe/Pai)</label>
+                                <input type="text" name="filiacao" class="form-control bg-light" value="{{ trabalhador.filiacao if trabalhador else '' }}" placeholder="Ex: Maria da Silva">
+                            </div>
+                        </div>
+
+                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Contato e Ocupação</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">E-mail</label>
+                                <input type="email" name="email" class="form-control bg-light" value="{{ trabalhador.email if trabalhador else '' }}" placeholder="joao@email.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Telefone / WhatsApp</label>
+                                <input type="text" name="telefone" id="telefone" class="form-control bg-light" value="{{ trabalhador.telefone if trabalhador else '' }}" placeholder="(00) 00000-0000" maxlength="15">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Profissão / Cargo</label>
+                                <input type="text" name="profissao" class="form-control bg-light" value="{{ trabalhador.profissao if trabalhador else '' }}" placeholder="Ex: Analista Administrativo">
+                            </div>
+                        </div>
+
+                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Endereço</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">CEP</label>
+                                <div class="input-group">
+                                    <input type="text" name="cep" id="cep" class="form-control bg-light" value="{{ trabalhador.cep if trabalhador else '' }}" placeholder="00000-000" maxlength="9">
+                                    <span class="input-group-text bg-white" id="cep-loading" style="display: none;">
+                                        <i class="fas fa-spinner fa-spin text-primary"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Logradouro (Rua/Av)</label>
+                                <input type="text" name="logradouro" id="logradouro" class="form-control bg-light" value="{{ trabalhador.logradouro if trabalhador else '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Número</label>
+                                <input type="text" name="numero" id="numero" class="form-control bg-light" value="{{ trabalhador.numero if trabalhador else '' }}">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Complemento</label>
+                                <input type="text" name="complemento" class="form-control bg-light" value="{{ trabalhador.complemento if trabalhador else '' }}" placeholder="Apto, Bloco, Casa 2...">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Bairro</label>
+                                <input type="text" name="bairro" id="bairro" class="form-control bg-light" value="{{ trabalhador.bairro if trabalhador else '' }}">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Cidade</label>
+                                <input type="text" name="cidade" id="cidade" class="form-control bg-light" value="{{ trabalhador.cidade if trabalhador else '' }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">UF</label>
+                                <input type="text" name="estado" id="estado" class="form-control bg-light" maxlength="2" value="{{ trabalhador.estado if trabalhador else '' }}" placeholder="SP">
+                            </div>
+                        </div>
+
+                        {% if origem != 'cliente' %}
+                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Vínculo Empresarial</h6>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-danger">Empresa Contratante *</label>
+                            <select name="empresa_id" class="form-select border-danger border-opacity-50" required>
+                                <option value="">Selecione a empresa vinculada...</option>
+                                {% for e in empresas %}
+                                <option value="{{ e.id }}" {{ 'selected' if trabalhador and trabalhador.empresa_id == e.id else '' }}>{{ e.razao_social }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top">
+                            {% if origem == 'cliente' %}
+                                <a href="{{ url_for('cliente.listar_trabalhadores', slug=empresa.slug) }}" class="btn btn-outline-secondary px-4 fw-bold">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('admin.listar_trabalhadores') }}" class="btn btn-outline-secondary px-4 fw-bold">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                            {% endif %}
+                            
+                            <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                <i class="fas fa-save me-2"></i>{{ 'Salvar Alterações' if trabalhador else 'Confirmar Cadastro' }}
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 1. MÁSCARAS DE INPUT (Vanilla JS)
+    const cpfInput = document.getElementById('cpf');
+    const telInput = document.getElementById('telefone');
+    const cepInput = document.getElementById('cep');
+
+    cpfInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+        if (value.length > 11) value = value.slice(0, 11);
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        e.target.value = value;
+    });
+
+    telInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+        value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+        e.target.value = value;
+    });
+
+    cepInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 8) value = value.slice(0, 8);
+        value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+        e.target.value = value;
+    });
+
+    // 2. BUSCA DE ENDEREÇO (API ViaCEP)
+    cepInput.addEventListener('blur', function() {
+        let cep = this.value.replace(/\D/g, ''); // Pega só os números
+        
+        if (cep.length === 8) {
+            // Mostra o ícone de carregamento
+            document.getElementById('cep-loading').style.display = 'block';
+            
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cep-loading').style.display = 'none';
+                    if (!data.erro) {
+                        document.getElementById('logradouro').value = data.logradouro;
+                        document.getElementById('bairro').value = data.bairro;
+                        document.getElementById('cidade').value = data.localidade;
+                        document.getElementById('estado').value = data.uf;
+                        // Joga o foco pro usuário digitar o número
+                        document.getElementById('numero').focus();
+                    } else {
+                        alert("CEP não encontrado. Por favor, preencha manualmente.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar o CEP:', error);
+                    document.getElementById('cep-loading').style.display = 'none';
+                });
+        }
+    });
+</script>
+
+</body>
+</html>

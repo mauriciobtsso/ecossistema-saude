@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil: {{ empresa.razao_social }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('admin.listar_empresas') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar para Listagem
+        </a>
+        <div>
+            <a href="{{ url_for('admin.editar_empresa', id=empresa.id) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Editar Empresa
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold border-bottom pb-2">Informações Gerais</h5>
+                    <p class="mb-1 text-muted small">Razão Social</p>
+                    <p class="fw-bold">{{ empresa.razao_social }}</p>
+                    
+                    <p class="mb-1 text-muted small">CNPJ</p>
+                    <p class="fw-bold text-primary">{{ empresa.cnpj }}</p>
+                    
+                    <p class="mb-1 text-muted small">Responsável</p>
+                    <p>{{ empresa.responsavel or 'Não informado' }}</p>
+                    
+                    <p class="mb-1 text-muted small">Contato</p>
+                    <p class="mb-0"><i class="far fa-envelope me-2"></i>{{ empresa.email or 'N/A' }}</p>
+                    <p><i class="fas fa-phone me-2"></i>{{ empresa.telefone or 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase small opacity-75">Faturamento Mensal Estimado</h6>
+                    <h2 class="fw-bold">R$ {{ "{:,.2f}".format(faturamento_previsto).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h2>
+                    <hr class="opacity-25">
+                    <p class="mb-0 fw-bold">{{ vidas_ativas }} Vidas Ativas</p>
+                    <small class="opacity-75">Base: R$ {{ "{:,.2f}".format(empresa.valor_por_vida).replace('.', 'X').replace(',', '.').replace('X', ',') }} / vida</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-0">
+                    <h5 class="mb-0 fw-bold">Vidas Vinculadas (Trabalhadores)</h5>
+                    <span class="badge bg-dark rounded-pill">{{ trabalhadores|length }} Total</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-3">Nome</th>
+                                    <th>CPF</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-3">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in trabalhadores %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="fw-bold">{{ t.nome }}</div>
+                                        <small class="text-muted">{{ t.profissao or 'Geral' }}</small>
+                                    </td>
+                                    <td><code class="small">{{ t.cpf }}</code></td>
+                                    <td>
+                                        <span class="badge rounded-pill {{ 'bg-success' if t.status == 'Ativo' else 'bg-danger' }}">
+                                            {{ t.status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <a href="{{ url_for('admin.editar_trabalhador', id=t.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-search me-1"></i>Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="fas fa-users-slash fa-2x mb-2 d-block opacity-25"></i>
+                                        Nenhum trabalhador vinculado a esta empresa.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

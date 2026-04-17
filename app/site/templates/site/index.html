@@ -1,0 +1,46 @@
+{% extends "site/base.html" %}
+
+{% block title %}Início - Ecossistema Saúde{% endblock %}
+
+{% block extra_style %}
+.hero { background: #f8f9fa; padding: 100px 0; }
+.hero h1 { font-size: 3.5rem; font-weight: 800; color: #212529; }
+{% endblock %}
+
+{% block content %}
+<section class="hero text-center">
+    <div class="container">
+        <h1 class="mb-4">Gestão de Vidas com <span class="text-primary">Inteligência.</span></h1>
+        <p class="lead text-muted mb-5 mx-auto" style="max-width: 700px;">
+            A plataforma completa para RHs que buscam eficiência operacional e controle absoluto sobre o faturamento de benefícios de saúde.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="#funcionalidades" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">Conhecer Soluções</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark btn-lg rounded-pill px-5">Acesso Portal</a>
+        </div>
+    </div>
+</section>
+
+<section id="funcionalidades" class="py-5 bg-white">
+    <div class="container py-5 text-center">
+        <h2 class="fw-bold mb-5">Funcionalidades do Ecossistema</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <i class="fas fa-id-card-alt fa-3x text-primary mb-3"></i>
+                <h5 class="fw-bold">Elegibilidade Instantânea</h5>
+                <p class="text-muted small">Inclusão e exclusão de funcionários via portal, garantindo que o faturamento acompanhe o giro da empresa.</p>
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-barcode fa-3x text-primary mb-3"></i>
+                <h5 class="fw-bold">Boleto Digital</h5>
+                <p class="text-muted small">Integração bancária para emissão de boletos e QR Code PIX diretamente no portal do cliente.</p>
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-shield-virus fa-3x text-primary mb-3"></i>
+                <h5 class="fw-bold">Privacidade Total</h5>
+                <p class="text-muted small">Dados sensíveis protegidos sob as mais rigorosas normas da LGPD, garantindo segurança jurídica para sua empresa.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

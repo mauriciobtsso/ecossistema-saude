@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecossistema Saúde - Gestão de Benefícios Inteligente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: white;
+            padding: 100px 0;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #0d6efd;
+            margin-bottom: 20px;
+        }
+        .card-feature {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .card-feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">
+            <i class="fas fa-heartbeat me-2"></i>Ecossistema Saúde
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link fw-bold me-3" href="#beneficios">Benefícios</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold me-3" href="#como-funciona">Como Funciona</a></li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-primary fw-bold px-4 rounded-pill" href="{{ url_for('auth.login') }}">
+                        <i class="fas fa-sign-in-alt me-2"></i>Área do Cliente
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero-section text-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">A saúde dos seus colaboradores sob controle total.</h1>
+                <p class="lead mb-5 opacity-75">Uma plataforma SaaS completa para gestão de benefícios de saúde corporativa. Autonomia para o RH, transparência financeira e cuidado em um só lugar.</p>
+                <a href="#contato" class="btn btn-light btn-lg text-primary fw-bold px-5 rounded-pill shadow">
+                    Falar com um Consultor
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="beneficios" class="py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Por que escolher o Ecossistema Saúde?</h2>
+            <p class="text-muted">Desenhado para empresas que precisam de agilidade e controle.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="card card-feature shadow-sm h-100 p-4">
+                    <i class="fas fa-users feature-icon"></i>
+                    <h5 class="fw-bold">Gestão Autônoma</h5>
+                    <p class="text-muted small">Adicione ou inative colaboradores em tempo real. O seu RH tem total controle sobre as vidas ativas na plataforma.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="card card-feature shadow-sm h-100 p-4">
+                    <i class="fas fa-file-invoice-dollar feature-icon"></i>
+                    <h5 class="fw-bold">Faturamento Inteligente</h5>
+                    <p class="text-muted small">Faturas geradas automaticamente com base no número exato de vidas ativas. Pague apenas pelo que utilizar.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="card card-feature shadow-sm h-100 p-4">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <h5 class="fw-bold">Adequado à LGPD</h5>
+                    <p class="text-muted small">Ambiente seguro, com controle restrito de acesso por empresa e total privacidade dos dados dos seus trabalhadores.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <h5 class="fw-bold"><i class="fas fa-heartbeat me-2 text-primary"></i>Ecossistema Saúde</h5>
+                <p class="small opacity-75">Soluções corporativas B2B para gestão de benefícios e saúde do trabalhador.</p>
+                <p class="small opacity-75 mb-0">CNPJ: 00.000.000/0001-00</p>
+                <p class="small opacity-75">Contato: comercial@ecossistemasaude.com.br</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <h6 class="fw-bold text-uppercase mb-3">Links Legais e Suporte</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{{ url_for('auth.login') }}" class="text-light text-decoration-none opacity-75 hover-white">Acesso Restrito (Portal)</a></li>
+                    <li class="mb-2"><a href="{{ url_for('site.termos') }}" class="text-light text-decoration-none opacity-75 hover-white">Termos de Uso</a></li>
+                    <li class="mb-2"><a href="{{ url_for('site.privacidade') }}" class="text-light text-decoration-none opacity-75 hover-white">Política de Privacidade (LGPD)</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-top border-secondary mt-4 pt-4 text-center opacity-50 small">
+            &copy; 2024 Ecossistema Saúde. Todos os direitos reservados.
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
