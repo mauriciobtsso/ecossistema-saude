@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, abort
+from flask import Blueprint, render_template, request, redirect, url_for, abort, flash
 from ..models import db, Empresa, Trabalhador, Fatura, Usuario, gerar_slug
 from datetime import datetime
 from sqlalchemy import func
 from ..auth import admin_required
 from flask_login import login_required, current_user
+from app.utils import enviar_email
+from app.asaas import criar_cobranca
 
 # Definindo o Blueprint do Admin
 admin_bp = Blueprint('admin', __name__)
@@ -208,7 +210,7 @@ def reativar_trabalhador(id):
     db.session.commit()
     return redirect(url_for('admin.listar_trabalhadores'))
 
-# --- MOTOR DE FATURAMENTO ---
+# --- MOTOR DE FATURAMENTO E ASAAS ---
 
 @admin_bp.route('/faturamento')
 @admin_required
@@ -222,21 +224,56 @@ def menu_faturamento():
 @admin_required
 def gerar_faturamento():
     mes_ano = request.form.get('competencia')
-    if not mes_ano: return redirect(url_for('admin.menu_faturamento'))
+    if not mes_ano: 
+        return redirect(url_for('admin.menu_faturamento'))
+        
     competencia = datetime.strptime(mes_ano, '%Y-%m').strftime('%m/%Y')
     empresas = Empresa.query.filter_by(status='Ativa').all()
+    
+    faturas_geradas = [] 
+
     for empresa in empresas:
-        if Fatura.query.filter_by(empresa_id=empresa.id, competencia=competencia).first(): continue
+        if Fatura.query.filter_by(empresa_id=empresa.id, competencia=competencia).first(): 
+            continue
+            
         qtd_vidas = Trabalhador.query.filter_by(empresa_id=empresa.id, status='Ativo').count()
         if qtd_vidas > 0:
             valor_total = qtd_vidas * empresa.valor_por_vida
             hoje = datetime.now()
-            try: vencimento = hoje.replace(day=empresa.dia_vencimento)
-            except ValueError: vencimento = hoje.replace(day=28)
+            try: 
+                vencimento = hoje.replace(day=empresa.dia_vencimento)
+            except ValueError: 
+                vencimento = hoje.replace(day=28)
+                
             f = Fatura(competencia=competencia, quantidade_vidas=qtd_vidas, valor_unitario=empresa.valor_por_vida,
                        valor_total=valor_total, data_vencimento=vencimento, status='Pendente', empresa_id=empresa.id)
+            
+            # Chama a API do Asaas para gerar a cobrança
+            gateway_id, boleto_url = criar_cobranca(empresa, f)
+            if gateway_id:
+                f.gateway_id = gateway_id
+                f.boleto_url = boleto_url
+
             db.session.add(f)
+            faturas_geradas.append((empresa, f))
+
     db.session.commit()
+
+    # Disparo de e-mail em lote
+    enviados = 0
+    for empresa, fatura in faturas_geradas:
+        if empresa.email:
+            sucesso = enviar_email(
+                assunto=f"Nova Fatura Disponível - {fatura.competencia}",
+                destinatario=empresa.email,
+                template="emails/fatura_pronta.html",
+                empresa=empresa,
+                fatura=fatura
+            )
+            if sucesso:
+                enviados += 1
+
+    flash(f'Processamento concluído! {len(faturas_geradas)} faturas geradas e {enviados} e-mails enviados.', 'success')
     return redirect(url_for('admin.menu_faturamento'))
 
 @admin_bp.route('/faturamento/pagar/<int:id>', methods=['POST'])
@@ -247,13 +284,12 @@ def baixar_fatura(id):
     db.session.commit()
     return redirect(url_for('admin.menu_faturamento'))
 
-# ROTA CORRIGIDA PARA PERMITIR IMPRESSÃO PELO CLIENTE (SEM @admin_required)
+# ROTA PARA IMPRESSÃO DO RECIBO
 @admin_bp.route('/faturamento/imprimir/<int:id>')
 @login_required 
 def imprimir_fatura(id):
     fatura = Fatura.query.get_or_404(id)
     
-    # Trava de segurança (IDOR): Se for cliente, checa se a fatura é dele
     if current_user.role != 'admin' and current_user.empresa_id != fatura.empresa_id:
         abort(403)
         
@@ -282,7 +318,6 @@ def cadastrar_usuario():
         role = request.form.get('role')
         empresa_id = request.form.get('empresa_id')
 
-        # Se for admin, não precisa de empresa_id
         if role == 'admin':
             empresa_id = None
         
@@ -308,13 +343,11 @@ def editar_usuario(id):
         usuario.email = request.form.get('email')
         usuario.role = request.form.get('role')
         
-        # Se mudar para admin, remove o vínculo de empresa
         if usuario.role == 'admin':
             usuario.empresa_id = None
         else:
             usuario.empresa_id = request.form.get('empresa_id')
             
-        # Só atualiza a senha se o campo não estiver vazio
         nova_senha = request.form.get('senha')
         if nova_senha:
             usuario.set_senha(nova_senha)
@@ -330,7 +363,6 @@ def excluir_usuario(id):
     if current_user.role != 'admin':
         return "Acesso Negado", 403
     
-    # Impede que o admin logado exclua a si mesmo
     if id == current_user.id:
         return "Erro: Você não pode excluir sua própria conta.", 400
         
@@ -339,3 +371,35 @@ def excluir_usuario(id):
     db.session.commit()
     return redirect(url_for('admin.listar_usuarios'))
 
+# --- WEBHOOKS (AUTOMAÇÃO FINANCEIRA) ---
+
+from flask import jsonify
+
+@admin_bp.route('/webhook/asaas', methods=['POST'])
+def webhook_asaas():
+    """Esta rota recebe os avisos automáticos do Asaas (ex: Boleto Pago)"""
+    
+    # Pega os dados que o Asaas enviou
+    dados = request.json
+    if not dados:
+        return jsonify({"erro": "Nenhum dado recebido"}), 400
+
+    # O Asaas manda vários eventos, nós só queremos saber se foi PAGO
+    eventos_pagos = ['PAYMENT_RECEIVED', 'PAYMENT_CONFIRMED']
+    
+    if dados.get('event') in eventos_pagos:
+        pagamento = dados.get('payment', {})
+        gateway_id = pagamento.get('id')
+        
+        if gateway_id:
+            # Procura no nosso banco qual fatura tem esse ID do Asaas
+            fatura = Fatura.query.filter_by(gateway_id=gateway_id).first()
+            
+            if fatura and fatura.status != 'Pago':
+                fatura.status = 'Pago'
+                fatura.data_pagamento = datetime.now()
+                db.session.commit()
+                print(f"✅ SUCESSO: Fatura {fatura.id} baixada automaticamente via Webhook!")
+                
+    # Sempre devemos responder 200 OK para o Asaas saber que recebemos a mensagem
+    return jsonify({"status": "recebido"}), 200

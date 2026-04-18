@@ -22,8 +22,14 @@
     <div class="container d-flex justify-content-between align-items-center">
         <span class="text-white fw-bold">Modo de Visualização de Fatura</span>
         <div>
-            <button onclick="window.print()" class="btn btn-primary">
-                <i class="fas fa-print me-2"></i>Imprimir ou Salvar PDF
+            {% if fatura.boleto_url and fatura.status != 'Pago' %}
+                <a href="{{ fatura.boleto_url }}" target="_blank" class="btn btn-success fw-bold shadow-sm">
+                    <i class="fas fa-barcode me-2"></i>Abrir Boleto / PIX
+                </a>
+            {% endif %}
+
+            <button onclick="window.print()" class="btn btn-primary ms-2 shadow-sm">
+                <i class="fas fa-print me-2"></i>Imprimir Recibo
             </button>
             
             {% if current_user.role == 'admin' %}
@@ -45,8 +51,9 @@
         </div>
         <div class="col-5 text-end border-start">
             <h4 class="fw-bold mb-1">FATURA #{{ fatura.id }}</h4>
-            <p class="mb-0 text-muted">Gerado em: {{ fatura.data_geracao.strftime('%d/%m/%Y') }}</p>
+            <p class="mb-0 text-muted">Gerada em: {{ fatura.data_geracao.strftime('%d/%m/%Y') }}</p>
             <h5 class="mt-2">Vencimento: <span class="text-danger fw-bold">{{ fatura.data_vencimento.strftime('%d/%m/%Y') }}</span></h5>
+            <p>LINK NO BANCO: {{ fatura.boleto_url or 'NENHUM LINK SALVO' }}</p>
         </div>
     </div>
 
@@ -96,8 +103,8 @@
                 <h6 class="fw-bold small mb-2 text-uppercase">Notas e Instruções:</h6>
                 <ul class="small text-muted mb-0">
                     <li>O atraso no pagamento implica em multa de 2% e juros de 1% ao mês.</li>
-                    <li>Este documento não substitui a Nota Fiscal de Serviços (NFS-e).</li>
-                    <li>Pagamento via PIX ou Boleto Bancário conforme contrato.</li>
+                    <li>Este documento é um recibo demonstrativo e não substitui a Nota Fiscal (NFS-e).</li>
+                    <li>Para realizar o pagamento, utilize o link oficial do Boleto/PIX enviado.</li>
                 </ul>
             </div>
         </div>
@@ -106,15 +113,24 @@
                 <h6 class="text-muted small text-uppercase fw-bold mb-2">Valor Total a Pagar</h6>
                 <h2 class="text-primary fw-bold mb-0">R$ {{ "{:,.2f}".format(fatura.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h2>
             </div>
-            <p class="mt-3">Status do Documento: 
-                <span class="badge {{ 'bg-success' if fatura.status == 'Pago' else 'bg-warning text-dark' }} px-3">
-                    {{ fatura.status|upper }}
+            
+            <div class="mt-3">
+                <span class="badge {{ 'bg-success' if fatura.status == 'Pago' else 'bg-warning text-dark' }} px-3 py-2 fs-6 mb-2">
+                    STATUS: {{ fatura.status|upper }}
                 </span>
-            </p>
+                
+                {% if fatura.boleto_url and fatura.status != 'Pago' %}
+                    <div class="no-print mt-2">
+                        <a href="{{ fatura.boleto_url }}" target="_blank" class="btn btn-success w-100 fw-bold shadow-sm">
+                            <i class="fas fa-qrcode me-2"></i>Pagar via Asaas (Boleto/Pix)
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    <div class="mt-5 pt-5 text-center">
+    <div class="mt-5 pt-5 text-center no-print">
         <div class="border-top mx-auto" style="width: 250px;"></div>
         <p class="small text-muted mt-2">Assinatura / Carimbo do Responsável</p>
     </div>

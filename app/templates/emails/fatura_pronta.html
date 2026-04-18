@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8faff; font-family: Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8faff; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <tr>
+                        <td style="background-color: #0d6efd; padding: 30px; text-align: center;">
+                            <h2 style="color: #ffffff; margin: 0; font-size: 24px;">SindiMedic Saúde</h2>
+                            <p style="color: #e9ecef; margin: 5px 0 0 0; font-size: 14px;">Aviso de Faturamento</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 40px 30px; color: #333333; line-height: 1.6;">
+                            <p style="margin-top: 0;">Olá, equipe da <strong>{{ empresa.razao_social }}</strong>,</p>
+                            <p>A fatura referente à competência <strong>{{ fatura.competencia }}</strong> já foi processada pelo nosso sistema e está disponível para conferência.</p>
+                            
+                            <div style="background-color: #f8f9fa; border-left: 4px solid #0d6efd; padding: 20px; margin: 25px 0; border-radius: 0 4px 4px 0;">
+                                <table width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="padding-bottom: 10px;"><strong>Vencimento:</strong> {{ fatura.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom: 10px;"><strong>Vidas Faturadas:</strong> {{ fatura.quantidade_vidas }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-size: 18px; padding-top: 10px; border-top: 1px solid #dee2e6;">
+                                            <strong>Valor Total:</strong> <span style="color: #0d6efd; font-weight: bold;">R$ {{ "{:,.2f}".format(fatura.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <p>Para visualizar a relação detalhada dos colaboradores ativos nesta competência e acessar o documento para pagamento, clique no botão abaixo:</p>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 35px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ url_for('auth.login', _external=True) }}" style="background-color: #0d6efd; color: #ffffff; text-decoration: none; padding: 14px 30px; border-radius: 6px; font-weight: bold; display: inline-block;">Acessar Portal do Cliente</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin-bottom: 0;">Em caso de dúvidas sobre as vidas faturadas, acesse o painel ou entre em contato com nosso suporte.</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="background-color: #f1f3f5; padding: 20px; text-align: center; color: #6c757d; font-size: 12px;">
+                            <p style="margin: 0 0 5px 0;">&copy; 2026 SindiMedic Saúde. Todos os direitos reservados.</p>
+                            <p style="margin: 0;">Este é um e-mail automático. Por favor, não responda.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
