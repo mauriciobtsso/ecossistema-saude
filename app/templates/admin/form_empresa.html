@@ -1,22 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ 'Editar' if empresa else 'Nova' }} Empresa</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-light">
+{% extends "base_portal.html" %}
 
-<nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
-    <div class="container">
-        <span class="navbar-brand fw-bold">
-            <i class="fas fa-building me-2"></i>Gestão de Contratos e Empresas
-        </span>
-    </div>
-</nav>
+{% block title %}{{ 'Editar' if empresa else 'Nova' }} Empresa - SaaS Saúde{% endblock %}
 
+{% block content %}
 <div class="container pb-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
@@ -136,17 +122,15 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+{% block scripts %}
 <script>
     const cnpjInput = document.getElementById('cnpj');
     const telInput = document.getElementById('telefone');
     const cepInput = document.getElementById('cep');
 
-    // ==========================================
-    // 1. MÁSCARAS DE INPUT
-    // ==========================================
+    // Máscaras de Input
     cnpjInput.addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 14) value = value.slice(0, 14);
@@ -172,15 +156,11 @@
         e.target.value = value;
     });
 
-    // ==========================================
-    // 2. BUSCA AUTOMÁTICA DE CNPJ (BrasilAPI)
-    // ==========================================
+    // Busca Automática de CNPJ (BrasilAPI)
     cnpjInput.addEventListener('blur', function() {
         let cnpj = this.value.replace(/\D/g, ''); 
-        
         if (cnpj.length === 14) {
             document.getElementById('cnpj-loading').style.display = 'block';
-            
             fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`)
                 .then(response => {
                     if (!response.ok) throw new Error('CNPJ não encontrado');
@@ -188,12 +168,9 @@
                 })
                 .then(data => {
                     document.getElementById('cnpj-loading').style.display = 'none';
-                    
-                    // Preenche Dados Básicos
                     document.getElementById('razao_social').value = data.razao_social || '';
                     document.getElementById('nome_fantasia').value = data.nome_fantasia || data.razao_social || '';
                     
-                    // Tenta puxar o telefone e aplicar a máscara
                     let tel = data.ddd_telefone_1 || '';
                     if(tel) {
                         let v = tel.replace(/\D/g, '');
@@ -204,7 +181,6 @@
                         }
                     }
 
-                    // Preenche Endereço
                     if(data.cep) {
                         document.getElementById('cep').value = data.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2');
                     }
@@ -215,7 +191,6 @@
                     document.getElementById('cidade').value = data.municipio || '';
                     document.getElementById('estado').value = data.uf || '';
                     
-                    // Joga o foco pro E-mail que geralmente não vem na API
                     document.getElementById('email').focus();
                 })
                 .catch(error => {
@@ -225,13 +200,9 @@
         }
     });
 
-    // ==========================================
-    // 3. BUSCA AUTOMÁTICA VIA CEP (ViaCEP)
-    // ==========================================
+    // Busca Automática via CEP (ViaCEP)
     cepInput.addEventListener('blur', function() {
         let cep = this.value.replace(/\D/g, ''); 
-        
-        // Só busca se o CNPJ não tiver preenchido os dados já (ou se o usuário apagar o logradouro)
         if (cep.length === 8 && !document.getElementById('logradouro').value) {
             document.getElementById('cep-loading').style.display = 'block';
             fetch(`https://viacep.com.br/ws/${cep}/json/`)
@@ -253,6 +224,4 @@
         }
     });
 </script>
-
-</body>
-</html>
+{% endblock %}

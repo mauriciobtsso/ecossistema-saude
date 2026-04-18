@@ -1,97 +1,101 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Perfil: {{ empresa.razao_social }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-light">
+{% extends "base_portal.html" %}
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{{ url_for('admin.listar_empresas') }}" class="btn btn-outline-secondary">
+{% block title %}Perfil: {{ empresa.razao_social }} - SindiMedic Saúde{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+        <a href="{{ url_for('admin.listar_empresas') }}" class="btn btn-outline-secondary shadow-sm fw-bold">
             <i class="fas fa-arrow-left me-2"></i>Voltar para Listagem
         </a>
         <div>
-            <a href="{{ url_for('admin.editar_empresa', id=empresa.id) }}" class="btn btn-warning">
+            <a href="{{ url_for('admin.editar_empresa', id=empresa.id) }}" class="btn btn-warning shadow-sm fw-bold text-dark">
                 <i class="fas fa-edit me-2"></i>Editar Empresa
             </a>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h5 class="fw-bold border-bottom pb-2">Informações Gerais</h5>
-                    <p class="mb-1 text-muted small">Razão Social</p>
-                    <p class="fw-bold">{{ empresa.razao_social }}</p>
+            
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold border-bottom pb-3 mb-3 text-dark">Informações Gerais</h5>
                     
-                    <p class="mb-1 text-muted small">CNPJ</p>
-                    <p class="fw-bold text-primary">{{ empresa.cnpj }}</p>
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Razão Social</p>
+                    <p class="fw-bold text-dark mb-1">{{ empresa.razao_social }}</p>
+                    {% if empresa.nome_fantasia %}
+                        <p class="small text-primary fw-bold mb-3"><i class="fas fa-store me-1 opacity-75"></i>{{ empresa.nome_fantasia }}</p>
+                    {% else %}
+                        <div class="mb-3"></div>
+                    {% endif %}
                     
-                    <p class="mb-1 text-muted small">Responsável</p>
-                    <p>{{ empresa.responsavel or 'Não informado' }}</p>
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">CNPJ</p>
+                    <p class="fw-bold text-primary mb-3">{{ empresa.cnpj }}</p>
                     
-                    <p class="mb-1 text-muted small">Contato</p>
-                    <p class="mb-0"><i class="far fa-envelope me-2"></i>{{ empresa.email or 'N/A' }}</p>
-                    <p><i class="fas fa-phone me-2"></i>{{ empresa.telefone or 'N/A' }}</p>
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Responsável</p>
+                    <p class="mb-3">{{ empresa.responsavel or 'Não informado' }}</p>
+                    
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Contato</p>
+                    <p class="mb-1"><i class="far fa-envelope me-2 text-muted"></i>{{ empresa.email or 'N/A' }}</p>
+                    <p class="mb-0"><i class="fas fa-phone me-2 text-muted"></i>{{ empresa.telefone or 'N/A' }}</p>
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm bg-primary text-white">
-                <div class="card-body text-center">
-                    <h6 class="text-uppercase small opacity-75">Faturamento Mensal Estimado</h6>
-                    <h2 class="fw-bold">R$ {{ "{:,.2f}".format(faturamento_previsto).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h2>
-                    <hr class="opacity-25">
-                    <p class="mb-0 fw-bold">{{ vidas_ativas }} Vidas Ativas</p>
-                    <small class="opacity-75">Base: R$ {{ "{:,.2f}".format(empresa.valor_por_vida).replace('.', 'X').replace(',', '.').replace('X', ',') }} / vida</small>
+            <div class="card border-0 shadow-sm bg-primary text-white" style="border-radius: 12px;">
+                <div class="card-body text-center p-4">
+                    <h6 class="text-uppercase small opacity-75 fw-bold mb-2">Faturamento Mensal Estimado</h6>
+                    <h2 class="fw-bold mb-3">R$ {{ "{:,.2f}".format(faturamento_previsto).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h2>
+                    
+                    <div class="border-top border-light border-opacity-25 pt-3 mt-3">
+                        <p class="mb-1 fw-bold fs-5">{{ vidas_ativas }} Vidas Ativas</p>
+                        <small class="opacity-75">Base contratual: R$ {{ "{:,.2f}".format(empresa.valor_por_vida).replace('.', 'X').replace(',', '.').replace('X', ',') }} / vida</small>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-0">
-                    <h5 class="mb-0 fw-bold">Vidas Vinculadas (Trabalhadores)</h5>
-                    <span class="badge bg-dark rounded-pill">{{ trabalhadores|length }} Total</span>
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-4 border-bottom-0" style="border-radius: 12px 12px 0 0;">
+                    <h5 class="mb-0 fw-bold text-dark">Vidas Vinculadas (Trabalhadores)</h5>
+                    <span class="badge bg-dark rounded-pill px-3 py-2 shadow-sm">{{ trabalhadores|length }} Cadastros</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light text-muted small text-uppercase">
                                 <tr>
-                                    <th class="ps-3">Nome</th>
-                                    <th>CPF</th>
-                                    <th>Status</th>
-                                    <th class="text-end pe-3">Ação</th>
+                                    <th class="ps-4 py-3">Nome</th>
+                                    <th class="py-3">CPF</th>
+                                    <th class="py-3">Status</th>
+                                    <th class="text-end pe-4 py-3">Ação</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for t in trabalhadores %}
                                 <tr>
-                                    <td class="ps-3">
-                                        <div class="fw-bold">{{ t.nome }}</div>
+                                    <td class="ps-4 py-3">
+                                        <div class="fw-bold text-dark">{{ t.nome }}</div>
                                         <small class="text-muted">{{ t.profissao or 'Geral' }}</small>
                                     </td>
-                                    <td><code class="small">{{ t.cpf }}</code></td>
+                                    <td><code class="small text-secondary fw-bold">{{ t.cpf }}</code></td>
                                     <td>
                                         <span class="badge rounded-pill {{ 'bg-success' if t.status == 'Ativo' else 'bg-danger' }}">
                                             {{ t.status }}
                                         </span>
                                     </td>
-                                    <td class="text-end pe-3">
-                                        <a href="{{ url_for('admin.editar_trabalhador', id=t.id) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-search me-1"></i>Ver
+                                    <td class="text-end pe-4">
+                                        <a href="{{ url_for('admin.editar_trabalhador', id=t.id) }}" class="btn btn-sm btn-outline-primary shadow-sm">
+                                            <i class="fas fa-search me-1"></i>Ver Detalhes
                                         </a>
                                     </td>
                                 </tr>
                                 {% else %}
                                 <tr>
                                     <td colspan="4" class="text-center py-5 text-muted">
-                                        <i class="fas fa-users-slash fa-2x mb-2 d-block opacity-25"></i>
-                                        Nenhum trabalhador vinculado a esta empresa.
+                                        <i class="fas fa-users-slash fa-3x mb-3 d-block opacity-25"></i>
+                                        Nenhum trabalhador vinculado a esta empresa no momento.
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -103,6 +107,4 @@
         </div>
     </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

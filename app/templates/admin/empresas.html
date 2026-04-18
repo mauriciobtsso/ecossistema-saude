@@ -1,6 +1,6 @@
 {% extends "base_portal.html" %}
 
-{% block title %}SaaS Saúde - Gestão de Empresas{% endblock %}
+{% block title %}SindiMedic Saúde - Gestão de Empresas{% endblock %}
 
 {% block extra_style %}
 <style>
@@ -66,9 +66,12 @@
                     <tbody>
                         {% for empresa in pagination.items %}
                         <tr>
-                            <td class="ps-4">
+                            <td class="ps-4 py-3">
                                 <div class="fw-bold text-dark">{{ empresa.razao_social }}</div>
-                                <small class="text-muted">{{ empresa.email or 'N/A' }}</small>
+                                {% if empresa.nome_fantasia %}
+                                    <div class="small text-primary fw-medium mb-1"><i class="fas fa-store me-1 opacity-75"></i>{{ empresa.nome_fantasia }}</div>
+                                {% endif %}
+                                <small class="text-muted"><i class="far fa-envelope me-1 opacity-50"></i>{{ empresa.email or 'N/A' }}</small>
                             </td>
                             <td><code class="text-primary fw-bold">{{ empresa.cnpj }}</code></td>
                             <td><span class="text-dark fw-bold">R$ {{ "{:,.2f}".format(empresa.valor_por_vida).replace('.', 'X').replace(',', '.').replace('X', ',') }}</span></td>
