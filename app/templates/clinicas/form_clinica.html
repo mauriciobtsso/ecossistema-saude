@@ -1,0 +1,171 @@
+{% extends "base_portal.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ 'Editar Clínica' if clinica else 'Nova Clínica' }}</h2>
+        <a href="{{ url_for('clinicas.listar_clinicas') }}" class="btn btn-outline-secondary">Voltar</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body p-4">
+            <form method="POST">
+                <h5 class="text-primary border-bottom pb-2 mb-3">Dados Principais</h5>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label>CNPJ * <span id="cnpj-loading" class="spinner-border spinner-border-sm text-primary d-none" role="status"></span></label>
+                        <input type="text" name="cnpj" id="cnpj" class="form-control" value="{{ clinica.cnpj if clinica else '' }}" placeholder="00.000.000/0000-00" required>
+                        <div class="form-text text-success" id="cnpj-msg" style="font-size: 0.75rem;">Digite para buscar os dados</div>
+                    </div>
+                    <div class="col-md-5">
+                        <label>Razão Social *</label>
+                        <input type="text" name="razao_social" id="razao_social" class="form-control" value="{{ clinica.razao_social if clinica else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Nome Fantasia</label>
+                        <input type="text" name="nome_fantasia" id="nome_fantasia" class="form-control" value="{{ clinica.nome_fantasia if clinica else '' }}">
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label>E-mail de Contato</label>
+                        <input type="email" name="email" class="form-control" value="{{ clinica.email if clinica else '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Telefone</label>
+                        <input type="text" name="telefone" id="telefone" class="form-control" value="{{ clinica.telefone if clinica else '' }}" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <h5 class="text-primary border-bottom pb-2 mb-3">Endereço</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label>CEP <span id="cep-loading" class="spinner-border spinner-border-sm text-primary d-none" role="status"></span></label>
+                        <input type="text" name="cep" id="cep" class="form-control" value="{{ clinica.cep if clinica else '' }}" placeholder="00000-000">
+                    </div>
+                    <div class="col-md-7">
+                        <label>Logradouro</label>
+                        <input type="text" name="logradouro" id="logradouro" class="form-control" value="{{ clinica.logradouro if clinica else '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Número</label>
+                        <input type="text" name="numero" id="numero" class="form-control" value="{{ clinica.numero if clinica else '' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Bairro</label>
+                        <input type="text" name="bairro" id="bairro" class="form-control" value="{{ clinica.bairro if clinica else '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cidade</label>
+                        <input type="text" name="cidade" id="cidade" class="form-control" value="{{ clinica.cidade if clinica else '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label>UF</label>
+                        <input type="text" name="estado" id="estado" class="form-control" value="{{ clinica.estado if clinica else '' }}" maxlength="2">
+                    </div>
+                </div>
+
+                <h5 class="text-primary border-bottom pb-2 mb-3">Configurações e Contrato</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label>Dia de Fechamento (Faturamento)</label>
+                        <input type="number" name="dia_fechamento" class="form-control" min="1" max="31" value="{{ clinica.dia_fechamento if clinica else '5' }}" required>
+                        <div class="form-text">Dia que a clínica manda a conta pro SindiMedic.</div>
+                    </div>
+                    {% if clinica %}
+                    <div class="col-md-4">
+                        <label>Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Ativa" {% if clinica.status == 'Ativa' %}selected{% endif %}>Ativa</option>
+                            <option value="Inativa" {% if clinica.status == 'Inativa' %}selected{% endif %}>Inativa</option>
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
+                        <i class="fas fa-save me-2"></i> {{ 'Salvar Alterações' if clinica else 'Cadastrar Clínica' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/imask"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // 1. APLICAR AS MÁSCARAS AOS CAMPOS
+        var cnpjMask = IMask(document.getElementById('cnpj'), { mask: '00.000.000/0000-00' });
+        var cepMask = IMask(document.getElementById('cep'), { mask: '00000-000' });
+        var telMask = IMask(document.getElementById('telefone'), { 
+            mask: [
+                { mask: '(00) 0000-0000' },
+                { mask: '(00) 00000-0000' }
+            ]
+        });
+
+        // 2. BUSCA AUTOMÁTICA DE CEP (ViaCEP)
+        const inputCep = document.getElementById('cep');
+        inputCep.addEventListener('blur', function() {
+            let cepValue = this.value.replace(/\D/g, ''); // Tira o traço
+            if (cepValue.length === 8) {
+                document.getElementById('cep-loading').classList.remove('d-none');
+                
+                fetch(`https://viacep.com.br/ws/${cepValue}/json/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.erro) {
+                            document.getElementById('logradouro').value = data.logradouro;
+                            document.getElementById('bairro').value = data.bairro;
+                            document.getElementById('cidade').value = data.localidade;
+                            document.getElementById('estado').value = data.uf;
+                            document.getElementById('numero').focus(); // Joga o cursor pro número
+                        }
+                    })
+                    .catch(error => console.error("Erro na busca de CEP:", error))
+                    .finally(() => document.getElementById('cep-loading').classList.add('d-none'));
+            }
+        });
+
+        // 3. BUSCA AUTOMÁTICA DE CNPJ (BrasilAPI)
+        const inputCnpj = document.getElementById('cnpj');
+        inputCnpj.addEventListener('blur', function() {
+            let cnpjValue = this.value.replace(/\D/g, ''); // Tira pontos e barras
+            if (cnpjValue.length === 14) {
+                document.getElementById('cnpj-loading').classList.remove('d-none');
+                document.getElementById('cnpj-msg').innerText = "Buscando dados na Receita...";
+                document.getElementById('cnpj-msg').classList.replace('text-success', 'text-warning');
+                
+                fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjValue}`)
+                    .then(response => {
+                        if(!response.ok) throw new Error("CNPJ Inválido ou não encontrado");
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('razao_social').value = data.razao_social || '';
+                        document.getElementById('nome_fantasia').value = data.nome_fantasia || data.razao_social;
+                        
+                        // Opcional: Já preenche o CEP da empresa e dispara a busca de endereço!
+                        if(data.cep) {
+                            cepMask.value = data.cep.toString(); // Usa a máscara pra formatar
+                            inputCep.dispatchEvent(new Event('blur')); // Força o evento do ViaCEP a rodar
+                        }
+                        
+                        document.getElementById('cnpj-msg').innerText = "Dados importados com sucesso!";
+                        document.getElementById('cnpj-msg').classList.replace('text-warning', 'text-success');
+                    })
+                    .catch(error => {
+                        document.getElementById('cnpj-msg').innerText = "CNPJ não encontrado.";
+                        document.getElementById('cnpj-msg').classList.replace('text-warning', 'text-danger');
+                    })
+                    .finally(() => document.getElementById('cnpj-loading').classList.add('d-none'));
+            }
+        });
+    });
+</script>
+{% endblock %}

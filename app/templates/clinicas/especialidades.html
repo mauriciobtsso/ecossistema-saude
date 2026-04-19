@@ -1,0 +1,58 @@
+{% extends "base_portal.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fas fa-stethoscope me-2"></i>Nova Especialidade
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label>Nome da Especialidade *</label>
+                            <input type="text" name="nome" class="form-control" placeholder="Ex: Cardiologia" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Descrição (Opcional)</label>
+                            <textarea name="descricao" class="form-control" rows="3" placeholder="Detalhes sobre os tipos de exames ou consultas..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Adicionar à Rede</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white fw-bold border-bottom">
+                    Especialidades Cadastradas
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Nome</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in especialidades %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">{{ e.nome }}</td>
+                                <td class="text-muted small">{{ e.descricao or 'Nenhuma descrição.' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center py-4 text-muted">Nenhuma especialidade cadastrada ainda.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

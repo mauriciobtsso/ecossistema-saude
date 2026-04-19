@@ -1,0 +1,66 @@
+{% extends "base_portal.html" %} {% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-hospital text-primary me-2"></i>Rede Credenciada (Clínicas)</h2>
+        <a href="{{ url_for('clinicas.nova_clinica') }}" class="btn btn-primary fw-bold shadow-sm">
+            <i class="fas fa-plus me-2"></i>Cadastrar Clínica
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body bg-light">
+            <form method="GET" action="{{ url_for('clinicas.listar_clinicas') }}" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control" placeholder="Buscar por Razão Social ou CNPJ..." value="{{ search }}">
+                <button type="submit" class="btn btn-secondary px-4"><i class="fas fa-search"></i></button>
+                {% if search %}
+                    <a href="{{ url_for('clinicas.listar_clinicas') }}" class="btn btn-outline-danger">Limpar</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Clínica (Razão Social)</th>
+                        <th>CNPJ</th>
+                        <th>Cidade / UF</th>
+                        <th>Fechamento</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clinicas %}
+                    <tr>
+                        <td class="ps-4">
+                            <strong>{{ c.razao_social }}</strong><br>
+                            <small class="text-muted">{{ c.nome_fantasia or '---' }}</small>
+                        </td>
+                        <td>{{ c.cnpj }}</td>
+                        <td>{{ c.cidade }}/{{ c.estado }}</td>
+                        <td>Dia {{ c.dia_fechamento }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if c.status == 'Ativa' else 'bg-danger' }}">
+                                {{ c.status }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{{ url_for('clinicas.editar_clinica', id=c.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Nenhuma clínica cadastrada na rede.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -44,6 +44,21 @@
                     <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
                     <a class="nav-link" href="{{ url_for('admin.listar_empresas') }}">Empresas</a>
                     <a class="nav-link" href="{{ url_for('admin.listar_trabalhadores') }}">Trabalhadores</a>
+                    
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownRede" role="button" data-bs-toggle="dropdown">
+                            Rede Credenciada
+                        </a>
+                        <div class="dropdown-menu shadow-sm border-0 mt-2">
+                            <a class="dropdown-item py-2" href="{{ url_for('clinicas.listar_clinicas') }}">
+                                <i class="fas fa-hospital me-2 text-primary"></i>Clínicas
+                            </a>
+                            <a class="dropdown-item py-2" href="{{ url_for('clinicas.listar_especialidades') }}">
+                                <i class="fas fa-stethoscope me-2 text-primary"></i>Especialidades
+                            </a>
+                        </div>
+                    </div>
+                    
                     <a class="nav-link" href="{{ url_for('admin.menu_faturamento') }}">Faturamento</a>
                     <a class="nav-link" href="{{ url_for('admin.listar_usuarios') }}">Usuários</a>
                 

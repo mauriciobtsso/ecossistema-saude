@@ -19,6 +19,13 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'sqlite:///saas_saude.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # --- A MÁGICA CONTRA A QUEDA DE CONEXÃO DO NEON AQUI ---
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        "pool_pre_ping": True,  # Testa a conexão antes de usar (evita o erro 'server closed')
+        "pool_recycle": 300,    # Força a reciclagem da conexão a cada 5 minutos
+    }
+    # -------------------------------------------------------
+
     # 2. Chave secreta dinâmica
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", 'uma-chave-muito-segura-pode-mudar-depois')
 
@@ -50,10 +57,18 @@ def create_app():
     from .cliente.routes import cliente_bp
     from .auth import auth_bp
     from .site.routes import site_bp
+    from .clinicas.routes import clinicas_bp
 
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(cliente_bp, url_prefix='/portal')
     app.register_blueprint(auth_bp) 
     app.register_blueprint(site_bp)
+    app.register_blueprint(clinicas_bp, url_prefix='/admin/clinicas')
+
+    # 7. Criação das Tabelas do Banco de Dados (Incluindo o novo módulo de Clínicas)
+    with app.app_context():
+        from app import models # Importa os modelos principais (Empresa, Trabalhador, etc.)
+        from app.clinicas import models as clinicas_models # Importa os novos modelos (Clinica, Consulta)
+        db.create_all()
 
     return app
