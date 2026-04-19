@@ -403,3 +403,20 @@ def webhook_asaas():
                 
     # Sempre devemos responder 200 OK para o Asaas saber que recebemos a mensagem
     return jsonify({"status": "recebido"}), 200
+
+@admin_bp.route('/executar-tarefa-faturamento-secreta', methods=['POST'])
+def gatilho_faturamento_externo():
+    # Verifica uma chave simples de segurança no cabeçalho
+    chave = request.headers.get('X-Task-Key')
+    if chave != os.getenv('SECRET_KEY'): # Usamos a sua SECRET_KEY como senha
+        return "Não autorizado", 403
+
+    from app.tasks import processar_faturamento_automatico
+    # Como esta rota pode demorar (acordar banco + processar), 
+    # o Render pode dar timeout se forem muitas empresas.
+    # Para 300 empresas, o ideal é rodar isto e retornar sucesso.
+    processar_faturamento_automatico()
+    
+    return "Faturamento concluído com sucesso!", 200
+
+
