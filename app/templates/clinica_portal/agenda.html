@@ -1,0 +1,232 @@
+{% extends "base_portal.html" %}
+
+{% block title %}Agenda - SindiMedic Saúde{% endblock %}
+
+{% block content %}
+<div class="container mt-4 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="fas fa-calendar-alt text-primary me-2"></i>Gestão de Agenda</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNovoAgendamento">
+                <i class="fas fa-plus me-2"></i>Novo Agendamento
+            </button>
+            <a href="{{ url_for('clinica_portal.dashboard') }}" class="btn btn-outline-secondary shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light p-3 rounded d-flex gap-2">
+            <a href="{{ url_for('clinica_portal.agenda', status='Pendente') }}" 
+               class="btn {{ 'btn-warning text-dark fw-bold' if status_atual == 'Pendente' else 'btn-outline-warning text-dark' }}">
+               <i class="fas fa-clock me-1"></i> Aguardando Marcação
+            </a>
+            <a href="{{ url_for('clinica_portal.agenda', status='Confirmada') }}" 
+               class="btn {{ 'btn-success fw-bold' if status_atual == 'Confirmada' else 'btn-outline-success' }}">
+               <i class="fas fa-check-circle me-1"></i> Confirmadas (Futuro)
+            </a>
+            <a href="{{ url_for('clinica_portal.agenda', status='Realizada') }}" 
+               class="btn {{ 'btn-primary fw-bold' if status_atual == 'Realizada' else 'btn-outline-primary' }}">
+               <i class="fas fa-clipboard-check me-1"></i> Realizadas (Histórico)
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Paciente</th>
+                        <th>Especialidade</th>
+                        <th>Contato</th>
+                        <th>Informações de Data</th>
+                        <th class="text-end pe-4">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in consultas %}
+                    <tr>
+                        <td class="ps-4">
+                            <strong class="text-dark">{{ c.paciente.nome }}</strong><br>
+                            <small class="text-muted">Empresa: {{ c.paciente.empresa.razao_social[:20] }}...</small>
+                        </td>
+                        <td><span class="badge bg-secondary">{{ c.especialidade.nome }}</span></td>
+                        <td>{{ c.paciente.telefone or '-' }}</td>
+                        
+                        <td>
+                            {% if c.status == 'Pendente' %}
+                                <span class="text-muted small">
+                                    Pedido feito em:<br>
+                                    <strong>{{ c.data_solicitacao.strftime('%d/%m/%Y às %H:%M') }}</strong>
+                                </span>
+                            {% else %}
+                                <span class="text-primary small">
+                                    Agendado para:<br>
+                                    <strong class="fs-6">{{ c.data_agendada.strftime('%d/%m/%Y às %H:%M') }}</strong>
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-end pe-4">
+                            {% if c.status == 'Pendente' %}
+                                <button type="button" class="btn btn-warning btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalMarcar{{ c.id }}">
+                                    <i class="fas fa-calendar-check me-1"></i> Definir Data
+                                </button>
+
+                                <div class="modal fade text-start" id="modalMarcar{{ c.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow">
+                                            <div class="modal-header bg-warning">
+                                                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-calendar-check me-2"></i>Agendar Pedido</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{{ url_for('clinica_portal.confirmar_consulta', id=c.id) }}" method="POST">
+                                                <div class="modal-body p-4">
+                                                    <p class="mb-4">Defina o dia e a hora para o paciente <strong>{{ c.paciente.nome }}</strong> ser atendido na especialidade de <strong>{{ c.especialidade.nome }}</strong>.</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Data e Hora do Atendimento *</label>
+                                                        <input type="datetime-local" name="data_agendada" class="form-control form-control-lg" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-light">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-warning fw-bold text-dark">Confirmar Agendamento</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% elif c.status == 'Confirmada' %}
+                                <button class="btn btn-outline-success btn-sm disabled" title="Gerencie a fila pelo Dashboard">
+                                    <i class="fas fa-clock"></i> No Aguardo
+                                </button>
+                            {% else %}
+                                <span class="badge bg-primary px-3 py-2">Finalizada</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3 text-light"></i><br>
+                            Nenhuma consulta com status '{{ status_atual }}' encontrada.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNovoAgendamento" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-calendar-plus me-2"></i>Novo Agendamento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form action="{{ url_for('clinica_portal.novo_agendamento') }}" method="POST">
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4 small">Use esta opção para marcar uma consulta futura quando o paciente entrar em contacto direto com a clínica.</p>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Digite o CPF do Paciente *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-id-card text-muted"></i></span>
+                            <input type="text" id="cpfBuscaAgenda" class="form-control form-control-lg fw-bold" placeholder="000.000.000-00" autocomplete="off" required>
+                        </div>
+                        <div id="cpfFeedbackAgenda" class="form-text mt-2" style="height: 20px;"></div>
+                    </div>
+
+                    <input type="hidden" name="paciente_id" id="pacienteIdSecretoAgenda">
+
+                    <div id="areaAgendamento" style="display: none;">
+                        <div class="card bg-light border-0 mb-4 p-3">
+                            <h6 class="fw-bold mb-1 text-primary" id="nomePacienteExibicaoAgenda">Nome do Paciente</h6>
+                            <small class="text-muted" id="empresaPacienteExibicaoAgenda">Empresa</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Especialidade *</label>
+                            <select name="especialidade_id" class="form-select form-select-lg" required>
+                                <option value="">Selecione a especialidade...</option>
+                                {% for esp in especialidades %}
+                                    <option value="{{ esp.id }}">{{ esp.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Data e Hora da Consulta *</label>
+                            <input type="datetime-local" name="data_agendada" class="form-control form-control-lg" required>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btnSalvarAgendamento" class="btn btn-primary fw-bold shadow-sm" disabled>
+                        <i class="fas fa-save me-2"></i>Salvar Agendamento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/imask"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Máscara e Busca do CPF no Modal de Agendamento
+        var cpfInput = document.getElementById('cpfBuscaAgenda');
+        var cpfMask = IMask(cpfInput, { mask: '000.000.000-00' });
+        
+        var feedback = document.getElementById('cpfFeedbackAgenda');
+        var areaAgendamento = document.getElementById('areaAgendamento');
+        var pacienteIdSecreto = document.getElementById('pacienteIdSecretoAgenda');
+        var btnSalvar = document.getElementById('btnSalvarAgendamento');
+
+        cpfInput.addEventListener('input', function() {
+            var cpfValue = cpfInput.value;
+            
+            if (cpfValue.length < 14) {
+                feedback.innerHTML = "";
+                areaAgendamento.style.display = 'none';
+                pacienteIdSecreto.value = "";
+                btnSalvar.disabled = true;
+                return;
+            }
+
+            if (cpfValue.length === 14) {
+                feedback.innerHTML = '<span class="text-primary"><i class="fas fa-spinner fa-spin me-1"></i> Procurando paciente...</span>';
+                
+                fetch(`/clinica/api/buscar_paciente/${cpfValue}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'sucesso') {
+                            feedback.innerHTML = '<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Paciente Encontrado!</span>';
+                            document.getElementById('nomePacienteExibicaoAgenda').innerText = data.nome;
+                            document.getElementById('empresaPacienteExibicaoAgenda').innerText = "Vínculo: " + data.empresa;
+                            pacienteIdSecreto.value = data.id;
+                            areaAgendamento.style.display = 'block';
+                            btnSalvar.disabled = false;
+                        } else {
+                            feedback.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i> ${data.mensagem}</span>`;
+                            areaAgendamento.style.display = 'none';
+                            btnSalvar.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        feedback.innerHTML = '<span class="text-danger">Erro de conexão. Tente novamente.</span>';
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}

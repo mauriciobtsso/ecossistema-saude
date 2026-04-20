@@ -8,6 +8,9 @@ from flask_login import login_required, current_user
 from app.utils import enviar_email
 from app.asaas import criar_cobranca
 
+# Importando a Clínica para podermos criar usuários para ela
+from app.clinicas.models import Clinica
+
 # Definindo o Blueprint do Admin
 admin_bp = Blueprint('admin', __name__)
 
@@ -313,23 +316,33 @@ def cadastrar_usuario():
         return "Acesso Negado", 403
     
     empresas = Empresa.query.all()
+    clinicas = Clinica.query.all() # Busca as clínicas para o dropdown
+    
     if request.method == 'POST':
         email = request.form.get('email')
         senha = request.form.get('senha')
         role = request.form.get('role')
-        empresa_id = request.form.get('empresa_id')
+        
+        empresa_id = request.form.get('empresa_id') or None
+        clinica_id = request.form.get('clinica_id') or None
 
+        # Limpando IDs que não fazem sentido para a Role escolhida
         if role == 'admin':
             empresa_id = None
+            clinica_id = None
+        elif role == 'cliente':
+            clinica_id = None
+        elif role == 'clinica':
+            empresa_id = None
         
-        novo_usuario = Usuario(email=email, role=role, empresa_id=empresa_id)
+        novo_usuario = Usuario(email=email, role=role, empresa_id=empresa_id, clinica_id=clinica_id)
         novo_usuario.set_senha(senha)
         
         db.session.add(novo_usuario)
         db.session.commit()
         return redirect(url_for('admin.listar_usuarios'))
         
-    return render_template('admin/form_usuario.html', empresas=empresas, usuario=None)
+    return render_template('admin/form_usuario.html', empresas=empresas, clinicas=clinicas, usuario=None)
 
 @admin_bp.route('/usuarios/editar/<int:id>', methods=['GET', 'POST'])
 @admin_required
@@ -339,15 +352,25 @@ def editar_usuario(id):
     
     usuario = Usuario.query.get_or_404(id)
     empresas = Empresa.query.all()
+    clinicas = Clinica.query.all()
     
     if request.method == 'POST':
         usuario.email = request.form.get('email')
         usuario.role = request.form.get('role')
         
+        empresa_id = request.form.get('empresa_id') or None
+        clinica_id = request.form.get('clinica_id') or None
+        
+        # Limpando IDs e reatribuindo de acordo com a nova role
         if usuario.role == 'admin':
             usuario.empresa_id = None
-        else:
-            usuario.empresa_id = request.form.get('empresa_id')
+            usuario.clinica_id = None
+        elif usuario.role == 'cliente':
+            usuario.empresa_id = empresa_id
+            usuario.clinica_id = None
+        elif usuario.role == 'clinica':
+            usuario.empresa_id = None
+            usuario.clinica_id = clinica_id
             
         nova_senha = request.form.get('senha')
         if nova_senha:
@@ -356,7 +379,7 @@ def editar_usuario(id):
         db.session.commit()
         return redirect(url_for('admin.listar_usuarios'))
         
-    return render_template('admin/form_usuario.html', empresas=empresas, usuario=usuario)
+    return render_template('admin/form_usuario.html', empresas=empresas, clinicas=clinicas, usuario=usuario)
 
 @admin_bp.route('/usuarios/excluir/<int:id>', methods=['POST'])
 @admin_required
@@ -419,5 +442,3 @@ def gatilho_faturamento_externo():
     processar_faturamento_automatico()
     
     return "Faturamento concluído com sucesso!", 200
-
-

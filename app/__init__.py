@@ -58,12 +58,16 @@ def create_app():
     from .auth import auth_bp
     from .site.routes import site_bp
     from .clinicas.routes import clinicas_bp
+    from .clinica_portal.routes import clinica_portal_bp
+    from .paciente.routes import paciente_bp
 
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(cliente_bp, url_prefix='/portal')
     app.register_blueprint(auth_bp) 
     app.register_blueprint(site_bp)
     app.register_blueprint(clinicas_bp, url_prefix='/admin/clinicas')
+    app.register_blueprint(clinica_portal_bp, url_prefix='/clinica')
+    app.register_blueprint(paciente_bp, url_prefix='/meu-plano')
 
     # 7. Criação das Tabelas do Banco de Dados (Incluindo o novo módulo de Clínicas)
     with app.app_context():

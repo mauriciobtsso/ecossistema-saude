@@ -41,17 +41,20 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nível de Permissão</label>
-                            <select name="role" id="roleSelect" class="form-select" onchange="toggleEmpresa()">
+                            <select name="role" id="roleSelect" class="form-select" onchange="toggleVinculos()">
                                 <option value="cliente" {{ 'selected' if usuario and usuario.role == 'cliente' else '' }}>
-                                    Empresa (Acesso ao Portal)
+                                    Empresa Cliente (Acesso ao Portal RH)
+                                </option>
+                                <option value="clinica" {{ 'selected' if usuario and usuario.role == 'clinica' else '' }}>
+                                    Clínica / Rede Credenciada (Acesso a Agendamentos)
                                 </option>
                                 <option value="admin" {{ 'selected' if usuario and usuario.role == 'admin' else '' }}>
-                                    Administrador (Acesso Total)
+                                    Administrador SindiMedic (Acesso Total)
                                 </option>
                             </select>
                         </div>
 
-                        <div class="mb-4" id="empresaDiv" style="{{ 'display: none;' if usuario and usuario.role == 'admin' else 'display: block;' }}">
+                        <div class="mb-4" id="empresaDiv" style="{{ 'display: block;' if (not usuario or usuario.role == 'cliente') else 'display: none;' }}">
                             <label class="form-label fw-bold text-primary">Vincular à qual Empresa?</label>
                             <select name="empresa_id" class="form-select border-primary border-opacity-25">
                                 <option value="">Selecione a empresa vinculada...</option>
@@ -63,6 +66,21 @@
                             </select>
                             <div class="form-text mt-2 small">
                                 <i class="fas fa-info-circle me-1"></i> Usuários 'Cliente' só visualizam dados da empresa vinculada.
+                            </div>
+                        </div>
+
+                        <div class="mb-4" id="clinicaDiv" style="{{ 'display: block;' if usuario and usuario.role == 'clinica' else 'display: none;' }}">
+                            <label class="form-label fw-bold text-success">Vincular à qual Clínica?</label>
+                            <select name="clinica_id" class="form-select border-success border-opacity-25">
+                                <option value="">Selecione a clínica vinculada...</option>
+                                {% for c in clinicas %}
+                                <option value="{{ c.id }}" {{ 'selected' if usuario and usuario.clinica_id == c.id else '' }}>
+                                    {{ c.razao_social }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text mt-2 small">
+                                <i class="fas fa-info-circle me-1"></i> Usuários 'Clínica' irão gerir apenas os pacientes agendados para a sua unidade.
                             </div>
                         </div>
 
@@ -82,19 +100,26 @@
 
 {% block scripts %}
 <script>
-    // Função para mostrar/esconder o campo de empresa dinamicamente
-    function toggleEmpresa() {
+    // Função para mostrar/esconder os campos de vínculo dinamicamente
+    function toggleVinculos() {
         const role = document.getElementById('roleSelect').value;
-        const div = document.getElementById('empresaDiv');
+        const empresaDiv = document.getElementById('empresaDiv');
+        const clinicaDiv = document.getElementById('clinicaDiv');
         
-        if (role === 'admin') {
-            div.style.display = 'none';
-        } else {
-            div.style.display = 'block';
+        // Esconde tudo primeiro
+        empresaDiv.style.display = 'none';
+        clinicaDiv.style.display = 'none';
+        
+        // Mostra o que for apropriado
+        if (role === 'cliente') {
+            empresaDiv.style.display = 'block';
+        } else if (role === 'clinica') {
+            clinicaDiv.style.display = 'block';
         }
+        // Se for admin, ambos continuam escondidos (none)
     }
 
-    // Executa ao carregar a página para garantir o estado correto (importante para Edição)
-    window.onload = toggleEmpresa;
+    // Executa ao carregar a página para garantir que o formulário abra correto na Edição
+    window.onload = toggleVinculos;
 </script>
 {% endblock %}

@@ -103,10 +103,16 @@ class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     senha_hash = db.Column(db.String(512), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default='cliente')
+    role = db.Column(db.String(20), nullable=False, default='cliente') # admin, cliente, clinica
     
+    # Se o role for 'cliente', ele pertence a uma Empresa:
     empresa_id = db.Column(db.Integer, db.ForeignKey('empresas.id'), nullable=True)
     empresa = db.relationship('Empresa', backref=db.backref('usuario', uselist=False))
+
+    # Se o role for 'clinica', ele pertence a uma Clínica:
+    clinica_id = db.Column(db.Integer, db.ForeignKey('clinicas.id'), nullable=True)
+    # A referência em string 'Clinica' garante que não precisamos fazer um "import" circular aqui!
+    clinica = db.relationship('Clinica', backref=db.backref('usuario', uselist=False))
 
     def set_senha(self, senha):
         self.senha_hash = generate_password_hash(senha)

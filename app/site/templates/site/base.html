@@ -32,9 +32,16 @@
             <ul class="navbar-nav ms-auto align-items-lg-center text-center mt-3 mt-lg-0">
                 <li class="nav-item mb-2 mb-lg-0"><a class="nav-link px-3 fw-medium" href="{{ url_for('site.index') }}#beneficios">Benefícios</a></li>
                 <li class="nav-item mb-3 mb-lg-0"><a class="nav-link px-3 fw-medium" href="{{ url_for('site.index') }}#funcionalidades">Funcionalidades</a></li>
-                <li class="nav-item ms-lg-3">
-                    <a class="btn btn-primary rounded-pill px-4 w-100 w-lg-auto" href="{{ url_for('auth.login') }}">
-                        <i class="fas fa-user-circle me-2"></i>Área do Cliente
+                
+                <li class="nav-item ms-lg-3 mb-2 mb-lg-0">
+                    <a class="btn btn-outline-success rounded-pill px-4 w-100 w-lg-auto fw-bold" href="{{ url_for('paciente.login') }}">
+                        <i class="fas fa-mobile-alt me-2"></i>Sou Trabalhador
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-primary rounded-pill px-4 w-100 w-lg-auto fw-bold" href="{{ url_for('auth.login') }}">
+                        <i class="fas fa-building me-2"></i>Sou Empresa/Clínica
                     </a>
                 </li>
             </ul>
@@ -63,7 +70,8 @@
                 <h6 class="text-white fw-bold mb-3 text-uppercase">Navegação</h6>
                 <ul class="list-unstyled small">
                     <li class="mb-2"><a href="{{ url_for('site.index') }}" class="footer-link">Início da Plataforma</a></li>
-                    <li class="mb-2"><a href="{{ url_for('auth.login') }}" class="footer-link">Acesso Restrito (Login)</a></li>
+                    <li class="mb-2"><a href="{{ url_for('paciente.login') }}" class="footer-link text-success fw-bold">Acesso Paciente (Carteirinha)</a></li>
+                    <li class="mb-2"><a href="{{ url_for('auth.login') }}" class="footer-link">Acesso Corporativo (Login)</a></li>
                 </ul>
             </div>
             <div class="col-12 col-md-4">

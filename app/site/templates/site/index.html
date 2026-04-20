@@ -23,20 +23,22 @@
             <div class="col-lg-10 col-xl-8">
                 <h1 class="mb-4">Gestão de Vidas com <span class="text-primary">Inteligência.</span></h1>
                 <p class="lead text-muted mb-5 mx-auto" style="font-size: clamp(1rem, 2vw, 1.25rem);">
-                    A plataforma completa para RHs que buscam eficiência operacional e controle absoluto sobre o faturamento de benefícios de saúde.
+                    A plataforma completa para RHs que buscam eficiência operacional e saúde acessível para todos os seus colaboradores.
                 </p>
                 
                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 px-3 px-sm-0">
-                    <a href="#funcionalidades" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow-sm fw-bold">
-                        Conhecer Soluções
+                    <a href="{{ url_for('paciente.login') }}" class="btn btn-success btn-lg rounded-pill px-4 py-3 shadow-sm fw-bold">
+                        <i class="fas fa-id-card me-2"></i> Meu Plano (Paciente)
                     </a>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark btn-lg rounded-pill px-5 py-3 fw-bold">
-                        Acesso Portal
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-dark btn-lg rounded-pill px-4 py-3 shadow-sm fw-bold">
+                        <i class="fas fa-building me-2"></i> Portal Corporativo
                     </a>
                 </div>
                 
-                <div class="mt-5 pt-4 opacity-50 d-none d-md-block">
-                    <p class="small text-uppercase fw-bold tracking-wide">Plataforma 100% em nuvem e adequada à LGPD</p>
+                <div class="mt-4 pt-3">
+                    <a href="#funcionalidades" class="text-muted text-decoration-none fw-bold small text-uppercase">
+                        <i class="fas fa-chevron-down me-1"></i> Conhecer a Plataforma
+                    </a>
                 </div>
             </div>
         </div>

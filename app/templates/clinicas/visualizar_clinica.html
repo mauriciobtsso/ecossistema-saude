@@ -1,0 +1,67 @@
+{% extends "base_portal.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-hospital-user text-primary me-2"></i>Perfil da Clínica</h2>
+        <div>
+            <a href="{{ url_for('clinicas.editar_clinica', id=clinica.id) }}" class="btn btn-primary me-2"><i class="fas fa-edit me-2"></i>Editar</a>
+            <a href="{{ url_for('clinicas.listar_clinicas') }}" class="btn btn-outline-secondary">Voltar</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-1">{{ clinica.razao_social }}</h4>
+                    <p class="text-muted mb-4">CNPJ: {{ clinica.cnpj }} | Status: <span class="badge {{ 'bg-success' if clinica.status == 'Ativa' else 'bg-danger' }}">{{ clinica.status }}</span></p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Nome Fantasia:</div>
+                        <div class="col-sm-8">{{ clinica.nome_fantasia or '-' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">E-mail:</div>
+                        <div class="col-sm-8">{{ clinica.email or '-' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Telefone:</div>
+                        <div class="col-sm-8">{{ clinica.telefone or '-' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Endereço:</div>
+                        <div class="col-sm-8">
+                            {{ clinica.logradouro }}, {{ clinica.numero }} - {{ clinica.bairro }}<br>
+                            {{ clinica.cidade }}/{{ clinica.estado }} - CEP: {{ clinica.cep }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4 bg-light">
+                <div class="card-body">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="fas fa-file-invoice-dollar me-2"></i>Faturamento</h6>
+                    <p class="mb-0"><strong>Dia de Fechamento:</strong> Todo dia {{ clinica.dia_fechamento }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="fas fa-stethoscope me-2"></i>Especialidades Atendidas</h6>
+                    {% if clinica.especialidades_oferecidas.count() > 0 %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for esp in clinica.especialidades_oferecidas %}
+                                <span class="badge bg-secondary text-white p-2">{{ esp.nome }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">Nenhuma especialidade vinculada a esta clínica.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

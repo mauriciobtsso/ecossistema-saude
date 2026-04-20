@@ -1,0 +1,236 @@
+{% extends "base_portal.html" %}
+
+{% block title %}Painel da Clínica - SindiMedic Saúde{% endblock %}
+
+{% block content %}
+<div class="container mt-4 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="fas fa-clinic-medical text-primary me-2"></i>Olá, {{ clinica.nome_fantasia or clinica.razao_social }}</h2>
+            <p class="text-muted mt-1 mb-0">Bem-vindo(a) ao seu portal de gestão SindiMedic.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-warning fw-bold shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalBalcao">
+                <i class="fas fa-user-plus me-2"></i>Adicionar Paciente à Fila
+            </button>
+            <a href="{{ url_for('clinica_portal.agenda') }}" class="btn btn-primary fw-bold shadow-sm px-4 py-2">
+                <i class="fas fa-calendar-alt me-2"></i>Ver Agenda
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 border-start border-warning border-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-4">
+                        <i class="fas fa-clock fa-2x text-warning"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted fw-bold text-uppercase mb-1">Aguardam Confirmação</h6>
+                        <h2 class="mb-0 fw-bold">{{ pendentes }} <span class="fs-6 fw-normal text-muted">pedidos</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 border-start border-success border-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-4">
+                        <i class="fas fa-calendar-check fa-2x text-success"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted fw-bold text-uppercase mb-1">Agendados para Hoje</h6>
+                        <h2 class="mb-0 fw-bold">{{ hoje }} <span class="fs-6 fw-normal text-muted">pacientes</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 border-top border-warning border-4 h-100">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-chair text-warning me-2"></i>Fila de Espera (Na Clínica)</h5>
+                    <span class="badge bg-warning text-dark rounded-pill">{{ fila_espera|length }} aguardando</span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <tbody>
+                            {% for c in fila_espera %}
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <strong class="text-dark fs-5">{{ c.paciente.nome }}</strong><br>
+                                    <small class="text-muted"><i class="fas fa-building me-1"></i>{{ c.paciente.empresa.razao_social[:25] }}</small>
+                                </td>
+                                <td><span class="badge bg-secondary px-2 py-1">{{ c.especialidade.nome }}</span></td>
+                                <td class="text-muted small">Chegou às<br><strong>{{ c.data_agendada.strftime('%H:%M') }}</strong></td>
+                                <td class="text-end pe-4">
+                                    <form action="{{ url_for('clinica_portal.finalizar_consulta', id=c.id) }}" method="POST" onsubmit="return confirm('Confirmar que o paciente foi atendido pelo médico?');">
+                                        <button type="submit" class="btn btn-success btn-sm fw-bold shadow-sm">
+                                            <i class="fas fa-check-circle me-1"></i>Finalizar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="fas fa-mug-hot fa-2x mb-3 text-light"></i><br>
+                                    A sala de espera está vazia.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 border-top border-primary border-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i>Próximos (Agendados)</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table align-middle mb-0">
+                        <tbody>
+                            {% for c in proximas %}
+                            <tr>
+                                <td class="ps-4 border-end" style="width: 80px; text-align: center;">
+                                    <strong class="text-primary d-block">{{ c.data_agendada.strftime('%d/%m') }}</strong>
+                                    <small class="text-muted">{{ c.data_agendada.strftime('%H:%M') }}</small>
+                                </td>
+                                <td class="ps-3">
+                                    <strong class="text-dark">{{ c.paciente.nome }}</strong><br>
+                                    <span class="badge bg-light text-dark border mt-1">{{ c.especialidade.nome }}</span>
+                                </td>
+                                <td class="text-end pe-3">
+                                    <form action="{{ url_for('clinica_portal.paciente_chegou', id=c.id) }}" method="POST" title="Marcar que o paciente chegou à clínica">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-sign-in-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted small">
+                                    Nenhuma consulta agendada no futuro.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-light text-center py-2">
+                    <a href="{{ url_for('clinica_portal.agenda') }}" class="text-decoration-none small fw-bold">Ver agenda completa</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBalcao" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-user-plus me-2"></i>Adicionar Paciente à Fila</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form action="{{ url_for('clinica_portal.atendimento_balcao') }}" method="POST">
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4 small">Identifique o paciente para colocá-lo na fila de espera do médico.</p>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Digite o CPF do Paciente *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-id-card text-muted"></i></span>
+                            <input type="text" id="cpfBusca" class="form-control form-control-lg fw-bold" placeholder="000.000.000-00" autocomplete="off" required>
+                        </div>
+                        <div id="cpfFeedback" class="form-text mt-2" style="height: 20px;"></div>
+                    </div>
+
+                    <input type="hidden" name="paciente_id" id="pacienteIdSecreto">
+
+                    <div id="areaEspecialidade" style="display: none;">
+                        <div class="card bg-light border-0 mb-3 p-3">
+                            <h6 class="fw-bold mb-1 text-primary" id="nomePacienteExibicao">Nome do Paciente</h6>
+                            <small class="text-muted" id="empresaPacienteExibicao">Empresa</small>
+                        </div>
+
+                        <label class="form-label fw-bold">Especialidade Desejada *</label>
+                        <select name="especialidade_id" class="form-select form-select-lg" required>
+                            <option value="">Selecione...</option>
+                            {% for esp in especialidades %}
+                                <option value="{{ esp.id }}">{{ esp.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btnSalvarBalcao" class="btn btn-warning fw-bold shadow-sm" disabled>
+                        <i class="fas fa-chair me-2"></i>Enviar para Sala de Espera
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/imask"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var cpfInput = document.getElementById('cpfBusca');
+        var cpfMask = IMask(cpfInput, { mask: '000.000.000-00' });
+        
+        var feedback = document.getElementById('cpfFeedback');
+        var areaEspecialidade = document.getElementById('areaEspecialidade');
+        var pacienteIdSecreto = document.getElementById('pacienteIdSecreto');
+        var btnSalvar = document.getElementById('btnSalvarBalcao');
+
+        cpfInput.addEventListener('input', function() {
+            var cpfValue = cpfInput.value;
+            
+            if (cpfValue.length < 14) {
+                feedback.innerHTML = "";
+                areaEspecialidade.style.display = 'none';
+                pacienteIdSecreto.value = "";
+                btnSalvar.disabled = true;
+                return;
+            }
+
+            if (cpfValue.length === 14) {
+                feedback.innerHTML = '<span class="text-primary"><i class="fas fa-spinner fa-spin me-1"></i> Procurando paciente...</span>';
+                
+                fetch(`/clinica/api/buscar_paciente/${cpfValue}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'sucesso') {
+                            feedback.innerHTML = '<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Paciente Autorizado!</span>';
+                            document.getElementById('nomePacienteExibicao').innerText = data.nome;
+                            document.getElementById('empresaPacienteExibicao').innerText = "Empresa: " + data.empresa;
+                            pacienteIdSecreto.value = data.id;
+                            areaEspecialidade.style.display = 'block';
+                            btnSalvar.disabled = false;
+                        } else {
+                            feedback.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i> ${data.mensagem}</span>`;
+                            areaEspecialidade.style.display = 'none';
+                            btnSalvar.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        feedback.innerHTML = '<span class="text-danger">Erro de conexão. Tente novamente.</span>';
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}
