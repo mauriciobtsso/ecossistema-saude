@@ -1,0 +1,118 @@
+{% extends "base_portal.html" %}
+
+{% block title %}Hub da Contabilidade - SaaS Saúde{% endblock %}
+
+{% block content %}
+<div class="container mt-4 pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">
+                <i class="fas fa-building-user text-warning me-2"></i>{{ escritorio.nome }}
+            </h2>
+            <p class="text-muted mt-1 mb-0">Painel de Gestão Multi-Empresas (Contabilidade)</p>
+        </div>
+        <div class="input-group" style="max-width: 350px;">
+            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="buscaEmpresa" class="form-control border-start-0 ps-0" placeholder="Buscar empresa ou CNPJ..." onkeyup="filtrarEmpresas()">
+        </div>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white">
+                <div class="card-body p-4">
+                    <h6 class="opacity-75 fw-bold text-uppercase small mb-2">Empresas na Carteira</h6>
+                    <h2 class="fw-bold mb-0">{{ total_empresas }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-success text-white">
+                <div class="card-body p-4">
+                    <h6 class="opacity-75 fw-bold text-uppercase small mb-2">Vidas Geridas</h6>
+                    <h2 class="fw-bold mb-0">{{ total_vidas }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-danger text-white">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="opacity-75 fw-bold text-uppercase small mb-2">Faturas Pendentes</h6>
+                        <h2 class="fw-bold mb-0">{{ faturas_pendentes }}</h2>
+                    </div>
+                    <i class="fas fa-file-invoice-dollar fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="fw-bold text-muted mb-3"><i class="fas fa-list me-2"></i>As Suas Empresas</h5>
+    
+    <div class="row g-4" id="gridEmpresas">
+        {% for item in empresas_data %}
+        <div class="col-12 col-md-6 col-lg-4 card-empresa" data-nome="{{ item.obj.razao_social | lower }}" data-cnpj="{{ item.obj.cnpj }}">
+            <div class="card h-100 border-0 shadow-sm rounded-4 transition-hover" style="transition: 0.3s;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-light text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                                {{ item.obj.razao_social[:1].upper() }}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark text-truncate" style="max-width: 180px;" title="{{ item.obj.razao_social }}">
+                                    {{ item.obj.nome_fantasia or item.obj.razao_social }}
+                                </h6>
+                                <small class="text-muted">{{ item.obj.cnpj }}</small>
+                            </div>
+                        </div>
+                        <span class="badge {{ 'bg-success' if item.obj.status == 'Ativa' else 'bg-secondary' }} rounded-pill">
+                            {{ item.obj.status }}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between bg-light rounded-3 p-3 mb-4">
+                        <div class="text-center">
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Trabalhadores</small>
+                            <span class="fw-bold text-dark">{{ item.vidas }}</span>
+                        </div>
+                        <div class="text-center border-start ps-3">
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Inadimplência</small>
+                            <span class="fw-bold {{ 'text-danger' if item.faturas > 0 else 'text-success' }}">{{ item.faturas }}</span>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('cliente.dashboard', slug=item.obj.slug) }}" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+                        Acessar Portal do RH <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-building-circle-xmark fa-3x text-muted opacity-25 mb-3"></i>
+            <h5 class="text-muted">Nenhuma empresa vinculada ao seu escritório ainda.</h5>
+            <p class="small text-muted">Solicite ao SindiMedic o vínculo das suas empresas.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function filtrarEmpresas() {
+        const input = document.getElementById('buscaEmpresa').value.toLowerCase();
+        const cards = document.getElementsByClassName('card-empresa');
+        
+        for (let i = 0; i < cards.length; i++) {
+            let nome = cards[i].getAttribute('data-nome');
+            let cnpj = cards[i].getAttribute('data-cnpj');
+            
+            if (nome.includes(input) || cnpj.includes(input)) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -21,15 +21,14 @@ def create_app():
 
     # --- A MÁGICA CONTRA A QUEDA DE CONEXÃO DO NEON AQUI ---
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        "pool_pre_ping": True,  # Testa a conexão antes de usar (evita o erro 'server closed')
-        "pool_recycle": 300,    # Força a reciclagem da conexão a cada 5 minutos
+        "pool_pre_ping": True,  # Testa a conexão antes de usar
+        "pool_recycle": 300,    # Recicla a cada 5 minutos
     }
-    # -------------------------------------------------------
 
     # 2. Chave secreta dinâmica
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", 'uma-chave-muito-segura-pode-mudar-depois')
 
-    # 3. CONFIGURAÇÕES DO FLASK-MAIL (Lendo do .env)
+    # 3. CONFIGURAÇÕES DO FLASK-MAIL
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
@@ -37,7 +36,7 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 
-    # 4. INICIALIZAÇÃO DAS EXTENSÕES (Rigorosamente UMA única vez)
+    # 4. INICIALIZAÇÃO DAS EXTENSÕES
     db.init_app(app)
     mail.init_app(app)
     login_manager.init_app(app)
@@ -47,7 +46,6 @@ def create_app():
     login_manager.login_message = "Acesso restrito. Por favor, faça login."
     login_manager.login_message_category = "warning"
 
-    # Loader de usuário
     @login_manager.user_loader
     def load_user(user_id):
         return Usuario.query.get(int(user_id))
@@ -60,6 +58,9 @@ def create_app():
     from .clinicas.routes import clinicas_bp
     from .clinica_portal.routes import clinica_portal_bp
     from .paciente.routes import paciente_bp
+    
+    # NOVO: Registro do Portal do Contador
+    from .contador_portal.routes import contador_portal_bp
 
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(cliente_bp, url_prefix='/portal')
@@ -68,11 +69,14 @@ def create_app():
     app.register_blueprint(clinicas_bp, url_prefix='/admin/clinicas')
     app.register_blueprint(clinica_portal_bp, url_prefix='/clinica')
     app.register_blueprint(paciente_bp, url_prefix='/meu-plano')
+    
+    # Rota do Hub da Contabilidade
+    app.register_blueprint(contador_portal_bp, url_prefix='/contabilidade')
 
-    # 7. Criação das Tabelas do Banco de Dados (Incluindo o novo módulo de Clínicas)
+    # 7. Criação das Tabelas do Banco de Dados
     with app.app_context():
-        from app import models # Importa os modelos principais (Empresa, Trabalhador, etc.)
-        from app.clinicas import models as clinicas_models # Importa os novos modelos (Clinica, Consulta)
+        from app import models 
+        from app.clinicas import models as clinicas_models 
         db.create_all()
 
     return app

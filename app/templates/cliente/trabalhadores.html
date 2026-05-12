@@ -22,22 +22,28 @@
                         <tr>
                             <th class="ps-4">Nome do Funcionário</th>
                             <th>CPF</th>
-                            <th>Status</th>
+                            <th>Status / Histórico</th>
                             <th class="text-end pe-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for t in trabalhadores %}
-                        <tr>
+                        <tr class="{{ 'bg-light opacity-75' if t.status == 'Inativo' else '' }}">
                             <td class="ps-4">
                                 <div class="fw-bold text-dark">{{ t.nome }}</div>
                                 <small class="text-muted">{{ t.profissao or 'Não informada' }}</small>
                             </td>
                             <td><code class="text-primary">{{ t.cpf }}</code></td>
                             <td>
-                                <span class="badge rounded-pill {{ 'bg-success' if t.status == 'Ativo' else 'bg-danger' }}">
+                                <span class="badge rounded-pill {{ 'bg-success' if t.status == 'Ativo' else 'bg-danger' }} mb-1">
                                     {{ t.status }}
                                 </span>
+                                {% if t.status == 'Inativo' and t.data_desligamento %}
+                                    <div class="small text-danger mt-1" style="font-size: 0.75rem;">
+                                        <strong>Saiu em:</strong> {{ t.data_desligamento.strftime('%d/%m/%Y') }}<br>
+                                        <strong>Motivo:</strong> {{ t.motivo_desligamento or 'Não especificado' }}
+                                    </div>
+                                {% endif %}
                             </td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-2">
@@ -46,17 +52,52 @@
                                     </a>
                                     
                                     {% if t.status == 'Ativo' %}
-                                    <form action="{{ url_for('cliente.inativar_trabalhador', id=t.id) }}" method="POST" onsubmit="return confirm('Deseja inativar este colaborador? Ele deixará de ser cobrado no próximo ciclo.');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Desativar Benefício">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalInativar{{ t.id }}" title="Inativar Colaborador">
                                             <i class="fas fa-user-slash"></i>
                                         </button>
-                                    </form>
+
+                                        <div class="modal fade text-start" id="modalInativar{{ t.id }}" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-0 shadow">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title fw-bold"><i class="fas fa-user-times me-2"></i>Desligamento de Beneficiário</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <form action="{{ url_for('cliente.inativar_trabalhador', id=t.id) }}" method="POST">
+                                                        <div class="modal-body p-4">
+                                                            <p class="mb-4">Você está a inativar o colaborador <strong>{{ t.nome }}</strong>. Ele deixará de ser cobrado na próxima fatura.</p>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Data do Desligamento *</label>
+                                                                <input type="date" name="data_desligamento" class="form-control" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Motivo do Desligamento *</label>
+                                                                <select name="motivo_desligamento" class="form-select" required>
+                                                                    <option value="">Selecione o motivo...</option>
+                                                                    <option value="Demissão sem Justa Causa">Demissão sem Justa Causa</option>
+                                                                    <option value="Pedido de Demissão">Pedido de Demissão</option>
+                                                                    <option value="Término de Contrato">Término de Contrato</option>
+                                                                    <option value="Aposentadoria">Aposentadoria</option>
+                                                                    <option value="Óbito">Óbito</option>
+                                                                    <option value="Outros">Outros</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer bg-light">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                            <button type="submit" class="btn btn-danger fw-bold">Confirmar Desligamento</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     {% else %}
-                                    <form action="{{ url_for('cliente.reativar_trabalhador', id=t.id) }}" method="POST" onsubmit="return confirm('Deseja reativar o benefício para este colaborador?');">
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Reativar Benefício">
-                                            <i class="fas fa-user-check"></i>
-                                        </button>
-                                    </form>
+                                        <form action="{{ url_for('cliente.reativar_trabalhador', id=t.id) }}" method="POST" onsubmit="return confirm('Deseja reativar o benefício para este colaborador?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Reativar Benefício">
+                                                <i class="fas fa-user-check"></i>
+                                            </button>
+                                        </form>
                                     {% endif %}
                                 </div>
                             </td>

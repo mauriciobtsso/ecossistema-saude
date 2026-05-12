@@ -25,8 +25,12 @@ def login():
                 return redirect(url_for('cliente.dashboard', slug=user.empresa.slug))
                 
             elif user.role == 'clinica':
-                # Redireciona para o futuro painel da Clínica
+                # Redireciona para o painel da Clínica
                 return redirect(url_for('clinica_portal.dashboard'))
+            
+            elif user.role == 'contador':
+                # Redireciona para o Hub da Contabilidade (Múltiplas Empresas)
+                return redirect(url_for('contador_portal.dashboard'))
         
         flash('E-mail ou senha inválidos', 'danger')
     return render_template('login.html')
@@ -49,6 +53,15 @@ def clinica_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or current_user.role != 'clinica':
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Novo Decorador para Proteger a Área do Escritório
+def contador_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'contador':
             abort(403)
         return f(*args, **kwargs)
     return decorated_function

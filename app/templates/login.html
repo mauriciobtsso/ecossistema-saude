@@ -28,7 +28,6 @@
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); 
             border-left-color: #ced4da;
         }
-        /* Efeito hover suave no botão */
         .btn-primary { transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
     </style>
@@ -81,9 +80,14 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-primary w-100 py-2 fw-bold rounded-pill" type="submit">
+                        <button class="btn btn-primary w-100 py-2 fw-bold rounded-pill mb-4" type="submit">
                             Entrar no Portal <i class="fas fa-arrow-right ms-2"></i>
                         </button>
+
+                        <div class="text-center pt-3 border-top">
+                            <span class="text-muted small">Ainda não tem cadastro?</span><br>
+                            <a href="{{ url_for('site.cadastro') }}" class="fw-bold text-decoration-none text-primary">Cadastre sua Empresa Aqui</a>
+                        </div>
                     </form>
                 </div>
 

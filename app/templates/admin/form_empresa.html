@@ -105,6 +105,15 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-warning">Vínculo Contábil</label>
+                                <select name="escritorio_id" class="form-select border-warning border-opacity-50 bg-light">
+                                    <option value="">Nenhum / Gestão Própria</option>
+                                    {% for esc in escritorios %}
+                                    <option value="{{ esc.id }}" {{ 'selected' if empresa and empresa.escritorio_id == esc.id else '' }}>{{ esc.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top">

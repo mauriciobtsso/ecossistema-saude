@@ -1,0 +1,215 @@
+{% extends "base_portal.html" %}
+
+{% block title %}Central de Relatórios - SaaS Saúde{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-chart-pie text-primary me-2"></i>Central de Relatórios</h2>
+            <p class="text-muted">Cruzamento de dados estratégicos do Sindicato.</p>
+        </div>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body bg-light rounded d-flex flex-wrap gap-2 p-3">
+            <a href="{{ url_for('admin.central_relatorios', tipo='financeiro') }}" 
+               class="btn {{ 'btn-primary fw-bold' if tipo == 'financeiro' else 'btn-outline-primary' }}">
+               <i class="fas fa-hand-holding-usd me-1"></i> Rateio Financeiro
+            </a>
+            <a href="{{ url_for('admin.central_relatorios', tipo='cadastral') }}" 
+               class="btn {{ 'btn-success fw-bold' if tipo == 'cadastral' else 'btn-outline-success' }}">
+               <i class="fas fa-users-cog me-1"></i> Cadastro / Turnover
+            </a>
+            <a href="{{ url_for('admin.central_relatorios', tipo='clinico') }}" 
+               class="btn {{ 'btn-info text-dark fw-bold' if tipo == 'clinico' else 'btn-outline-info text-dark' }}">
+               <i class="fas fa-stethoscope me-1"></i> Atendimentos Clínicos
+            </a>
+            
+            {% if tipo in ['financeiro', 'clinico'] %}
+            <form class="d-flex ms-auto gap-2 align-items-center">
+                <input type="hidden" name="tipo" value="{{ tipo }}">
+                <span class="small text-muted fw-bold">Competência:</span>
+                <input type="month" id="mesFiltro" class="form-control form-control-sm" style="width: 150px;">
+                <input type="hidden" name="competencia" id="competenciaOculta" value="{{ competencia }}">
+                <button type="submit" class="btn btn-dark btn-sm" onclick="prepararFiltroMes()">Filtrar</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if tipo == 'financeiro' %}
+        <div class="row mb-4 text-center">
+            <div class="col-md-6">
+                <div class="card bg-success text-white border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase fw-bold opacity-75">Contribuições Pagas</h6>
+                        <h2 class="fw-bold mb-0">R$ {{ "{:,.2f}".format(dados.pagas).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-danger text-white border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase fw-bold opacity-75">Inadimplência (Não Pagas)</h6>
+                        <h2 class="fw-bold mb-0">R$ {{ "{:,.2f}".format(dados.pendentes).replace('.', 'X').replace(',', '.').replace('X', ',') }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th class="ps-4">Empresa (CNPJ)</th>
+                            <th>Qtd. Vidas</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in dados.faturas %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ f.empresa.razao_social }}</td>
+                            <td>{{ f.quantidade_vidas }}</td>
+                            <td>R$ {{ "{:,.2f}".format(f.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}</td>
+                            <td><span class="badge {{ 'bg-success' if f.status == 'Pago' else 'bg-danger' }}">{{ f.status }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center py-4">Nenhuma fatura gerada nesta competência.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% elif tipo == 'cadastral' %}
+        <h5 class="fw-bold mb-3 mt-2">Demitidos Recentemente (Motivos)</h5>
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th class="ps-4">Trabalhador</th>
+                            <th>Empresa Original</th>
+                            <th>Data Desligamento</th>
+                            <th>Motivo Registrado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in dados.demissoes %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ t.nome }} <br><small class="fw-normal text-muted">{{ t.cpf }}</small></td>
+                            <td>{{ t.empresa.razao_social if t.empresa else 'Sem Vínculo' }}</td>
+                            <td class="text-danger fw-bold">{{ t.data_desligamento.strftime('%d/%m/%Y') if t.data_desligamento else '-' }}</td>
+                            <td>{{ t.motivo_desligamento }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center py-4">Sem registos de demissão.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h5 class="fw-bold mb-3 mt-4">Novas Empresas Cadastradas</h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th class="ps-4">Razão Social</th>
+                            <th>CNPJ</th>
+                            <th>Status Atual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in dados.novas_empresas %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ e.razao_social }}</td>
+                            <td>{{ e.cnpj }}</td>
+                            <td><span class="badge bg-success">{{ e.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% elif tipo == 'clinico' %}
+        <div class="row mb-4 text-center">
+            <div class="col-md-6">
+                <div class="card bg-info text-dark border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase fw-bold opacity-75">Consultas Realizadas</h6>
+                        <h2 class="fw-bold mb-0">{{ dados.realizadas }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-warning text-dark border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase fw-bold opacity-75">Agendamentos Futuros</h6>
+                        <h2 class="fw-bold mb-0">{{ dados.agendadas }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <h6 class="mb-0 fw-bold">Detalhamento Simplificado por Paciente</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th class="ps-4">Data</th>
+                            <th>Paciente</th>
+                            <th>Empresa Vinculada</th>
+                            <th>Clínica Executante</th>
+                            <th>Especialidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in dados.consultas %}
+                        <tr>
+                            <td class="ps-4 text-primary fw-bold">{{ c.data_agendada.strftime('%d/%m/%Y') }}</td>
+                            <td class="fw-bold">{{ c.paciente.nome }}</td>
+                            <td><small>{{ c.paciente.empresa.razao_social }}</small></td>
+                            <td>{{ c.clinica.nome_fantasia or c.clinica.razao_social }}</td>
+                            <td><span class="badge bg-secondary">{{ c.especialidade.nome }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center py-4">Nenhuma consulta registada neste período.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // JS para converter de 'YYYY-MM' do HTML5 para 'MM/YYYY' do nosso Python
+    document.addEventListener("DOMContentLoaded", function() {
+        let comp = document.getElementById("competenciaOculta");
+        if(comp && comp.value) {
+            let partes = comp.value.split('/');
+            document.getElementById("mesFiltro").value = partes[1] + '-' + partes[0];
+        }
+    });
+
+    function prepararFiltroMes() {
+        let val = document.getElementById("mesFiltro").value; // 'YYYY-MM'
+        if(val) {
+            let partes = val.split('-');
+            document.getElementById("competenciaOculta").value = partes[1] + '/' + partes[0];
+        }
+    }
+</script>
+{% endblock %}

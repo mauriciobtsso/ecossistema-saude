@@ -15,7 +15,7 @@
     <div class="row mb-4 align-items-center">
         <div class="col-md-6">
             <h2 class="fw-bold text-dark mb-0">Gestão Financeira</h2>
-            <p class="text-muted">Controle de faturas e fechamento de competências.</p>
+            <p class="text-muted">Controle de faturas e emissão de cobranças.</p>
         </div>
         <div class="col-md-6 d-flex justify-content-md-end">
             <form action="{{ url_for('admin.gerar_faturamento') }}" method="POST" class="d-flex gap-2 bg-white p-3 rounded shadow-sm border">
@@ -96,6 +96,9 @@
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
+                                    <a href="{{ url_for('admin.gerar_notificacao', id=fatura.id) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Gerar Carta de Cobrança Extrajudicial">
+                                        <i class="fas fa-gavel"></i>
+                                    </a>
                                     {% endif %}
                                     <a href="{{ url_for('admin.imprimir_fatura', id=fatura.id) }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir Recibo">
                                         <i class="fas fa-print"></i>

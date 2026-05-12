@@ -5,31 +5,68 @@
 {% block content %}
 <div class="container pb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
                 <div class="card-header bg-white py-3 border-bottom-0">
                     <h4 class="mb-0 fw-bold text-primary">{{ 'Editar Cadastro' if trabalhador else 'Cadastrar Novo Colaborador' }}</h4>
                 </div>
                 <div class="card-body p-4 pt-2">
+                    
+                    <div id="alerta-global" class="alert alert-info d-none shadow-sm rounded-3">
+                        <i class="fas fa-info-circle me-2"></i><strong>Atenção:</strong> Este CPF já existe na nossa base global de dados. O formulário foi preenchido automaticamente para lhe poupar tempo!
+                    </div>
+
                     <form method="POST">
-                        
-                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2 mt-2">Dados Pessoais</h6>
+                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2 mt-2">Dados Pessoais & Documentação</h6>
                         <div class="row g-3 mb-4">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Nome Completo *</label>
-                                <input type="text" name="nome" class="form-control bg-light" value="{{ trabalhador.nome if trabalhador else '' }}" required placeholder="Ex: João da Silva">
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold">CPF *</label>
-                                <input type="text" name="cpf" id="cpf" class="form-control bg-light" value="{{ trabalhador.cpf if trabalhador else '' }}" required placeholder="000.000.000-00" maxlength="14">
+                                <input type="text" name="cpf" id="cpf" class="form-control fw-bold border-primary" value="{{ trabalhador.cpf if trabalhador else '' }}" required placeholder="000.000.000-00" maxlength="14">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-9">
+                                <label class="form-label fw-bold">Nome Completo *</label>
+                                <input type="text" name="nome" id="nome" class="form-control bg-light" value="{{ trabalhador.nome if trabalhador else '' }}" required placeholder="Ex: João da Silva">
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">RG</label>
+                                <input type="text" name="rg" id="rg" class="form-control bg-light" value="{{ trabalhador.rg if trabalhador else '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Órgão Expedidor / UF</label>
+                                <input type="text" name="orgao_expedidor" id="orgao_expedidor" class="form-control bg-light" value="{{ trabalhador.orgao_expedidor if trabalhador else '' }}" placeholder="Ex: SSP/PI">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">PIS</label>
+                                <input type="text" name="pis" id="pis" class="form-control bg-light" value="{{ trabalhador.pis if trabalhador else '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">CTPS / Série</label>
+                                <input type="text" name="ctps" id="ctps" class="form-control bg-light" value="{{ trabalhador.ctps if trabalhador else '' }}">
+                            </div>
+
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold">Data de Nascimento</label>
-                                <input type="date" name="data_nascimento" class="form-control bg-light" value="{{ trabalhador.data_nascimento if trabalhador and trabalhador.data_nascimento else '' }}">
+                                <input type="date" name="data_nascimento" id="data_nascimento" class="form-control bg-light" value="{{ trabalhador.data_nascimento if trabalhador and trabalhador.data_nascimento else '' }}">
                             </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Estado Civil</label>
+                                <select name="estado_civil" id="estado_civil" class="form-select bg-light">
+                                    <option value="">Selecione...</option>
+                                    <option value="Solteiro(a)" {% if trabalhador and trabalhador.estado_civil == 'Solteiro(a)' %}selected{% endif %}>Solteiro(a)</option>
+                                    <option value="Casado(a)" {% if trabalhador and trabalhador.estado_civil == 'Casado(a)' %}selected{% endif %}>Casado(a)</option>
+                                    <option value="Divorciado(a)" {% if trabalhador and trabalhador.estado_civil == 'Divorciado(a)' %}selected{% endif %}>Divorciado(a)</option>
+                                    <option value="Viúvo(a)" {% if trabalhador and trabalhador.estado_civil == 'Viúvo(a)' %}selected{% endif %}>Viúvo(a)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Data de Admissão</label>
+                                <input type="date" name="data_admissao" id="data_admissao" class="form-control bg-light border-warning" value="{{ trabalhador.data_admissao if trabalhador and trabalhador.data_admissao else '' }}">
+                            </div>
+
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">Filiação (Nome da Mãe/Pai)</label>
-                                <input type="text" name="filiacao" class="form-control bg-light" value="{{ trabalhador.filiacao if trabalhador else '' }}" placeholder="Ex: Maria da Silva">
+                                <input type="text" name="filiacao" id="filiacao" class="form-control bg-light" value="{{ trabalhador.filiacao if trabalhador else '' }}" placeholder="Ex: Maria da Silva">
                             </div>
                         </div>
 
@@ -37,15 +74,15 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">E-mail</label>
-                                <input type="email" name="email" class="form-control bg-light" value="{{ trabalhador.email if trabalhador else '' }}" placeholder="joao@email.com">
+                                <input type="email" name="email" id="email" class="form-control bg-light" value="{{ trabalhador.email if trabalhador else '' }}" placeholder="joao@email.com">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Telefone / WhatsApp</label>
                                 <input type="text" name="telefone" id="telefone" class="form-control bg-light" value="{{ trabalhador.telefone if trabalhador else '' }}" placeholder="(00) 00000-0000" maxlength="15">
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label fw-bold">Profissão / Cargo</label>
-                                <input type="text" name="profissao" class="form-control bg-light" value="{{ trabalhador.profissao if trabalhador else '' }}" placeholder="Ex: Analista Administrativo">
+                                <label class="form-label fw-bold">Profissão / Função</label>
+                                <input type="text" name="profissao" id="profissao" class="form-control bg-light" value="{{ trabalhador.profissao if trabalhador else '' }}" placeholder="Ex: Analista Administrativo">
                             </div>
                         </div>
 
@@ -70,7 +107,7 @@
                             </div>
                             <div class="col-md-8">
                                 <label class="form-label fw-bold">Complemento</label>
-                                <input type="text" name="complemento" class="form-control bg-light" value="{{ trabalhador.complemento if trabalhador else '' }}" placeholder="Apto, Bloco, Casa 2...">
+                                <input type="text" name="complemento" id="complemento" class="form-control bg-light" value="{{ trabalhador.complemento if trabalhador else '' }}" placeholder="Apto, Bloco, Casa 2...">
                             </div>
                             <div class="col-md-5">
                                 <label class="form-label fw-bold">Bairro</label>
@@ -129,6 +166,7 @@
     const telInput = document.getElementById('telefone');
     const cepInput = document.getElementById('cep');
 
+    // Máscara e Busca Inteligente por CPF
     cpfInput.addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, ''); 
         if (value.length > 11) value = value.slice(0, 11);
@@ -136,6 +174,40 @@
         value = value.replace(/(\d{3})(\d)/, '$1.$2');
         value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
         e.target.value = value;
+
+        // Se completou os 14 caracteres, vamos procurar na base global!
+        if (value.length === 14) {
+            fetch(`/admin/api/buscar_cpf_trabalhador/${value}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.encontrado) {
+                        // Preenche tudo automaticamente
+                        document.getElementById('nome').value = data.nome || '';
+                        document.getElementById('rg').value = data.rg || '';
+                        document.getElementById('orgao_expedidor').value = data.orgao_expedidor || '';
+                        document.getElementById('pis').value = data.pis || '';
+                        document.getElementById('ctps').value = data.ctps || '';
+                        document.getElementById('estado_civil').value = data.estado_civil || '';
+                        document.getElementById('data_nascimento').value = data.data_nascimento || '';
+                        
+                        document.getElementById('email').value = data.email || '';
+                        document.getElementById('telefone').value = data.telefone || '';
+                        document.getElementById('profissao').value = data.profissao || '';
+                        document.getElementById('filiacao').value = data.filiacao || '';
+                        
+                        document.getElementById('cep').value = data.cep || '';
+                        document.getElementById('logradouro').value = data.logradouro || '';
+                        document.getElementById('numero').value = data.numero || '';
+                        document.getElementById('complemento').value = data.complemento || '';
+                        document.getElementById('bairro').value = data.bairro || '';
+                        document.getElementById('cidade').value = data.cidade || '';
+                        document.getElementById('estado').value = data.estado || '';
+                        
+                        // Mostra o aviso que poupamos o tempo dele
+                        document.getElementById('alerta-global').classList.remove('d-none');
+                    }
+                });
+        }
     });
 
     telInput.addEventListener('input', function (e) {

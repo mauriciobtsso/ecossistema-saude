@@ -7,13 +7,27 @@ import re
 
 db = SQLAlchemy()
 
-# Função para transformar "Pizza Leste S/A" em "pizza-leste-sa"
 def gerar_slug(texto):
     if not texto:
         return "empresa-sem-nome"
     texto = unicodedata.normalize('NFKD', texto).encode('ascii', 'ignore').decode('ascii')
     texto = re.sub(r'[^\w\s-]', '', texto.lower())
     return re.sub(r'[-\s]+', '-', texto).strip('-_')
+
+# ==========================================
+# ENTIDADE: ESCRITÓRIO DE CONTABILIDADE
+# ==========================================
+class Escritorio(db.Model):
+    __tablename__ = 'escritorios'
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(150), nullable=False)
+    cnpj = db.Column(db.String(18), unique=True, nullable=False)
+    email = db.Column(db.String(100))
+    telefone = db.Column(db.String(20))
+    status = db.Column(db.String(20), default='Ativo')
+    
+    # Um escritório gere várias empresas
+    empresas = db.relationship('Empresa', backref='escritorio_vinculado', lazy=True)
 
 # ==========================================
 # ENTIDADE: EMPRESA
@@ -42,17 +56,27 @@ class Empresa(db.Model):
     dia_vencimento = db.Column(db.Integer, default=10)
     status = db.Column(db.String(20), default='Ativa') # Ativa, Suspensa, Cancelada
     
+    # Vínculo com a Contabilidade
+    escritorio_id = db.Column(db.Integer, db.ForeignKey('escritorios.id'), nullable=True)
+    
     trabalhadores = db.relationship('Trabalhador', backref='empresa', lazy=True, cascade="all, delete-orphan")
     faturas = db.relationship('Fatura', backref='empresa', lazy=True, cascade="all, delete-orphan")
 
 # ==========================================
-# ENTIDADE: TRABALHADOR (VIDAS)
+# ENTIDADE: TRABALHADOR (VIDAS) - GLOBALIZADO
 # ==========================================
 class Trabalhador(db.Model):
     __tablename__ = 'trabalhadores'
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(150), nullable=False)
-    cpf = db.Column(db.String(14), unique=True, nullable=False)
+    cpf = db.Column(db.String(14), unique=True, nullable=False, index=True)
+    
+    rg = db.Column(db.String(20))
+    orgao_expedidor = db.Column(db.String(20))
+    pis = db.Column(db.String(20))
+    ctps = db.Column(db.String(50))
+    estado_civil = db.Column(db.String(50))
+    
     data_nascimento = db.Column(db.Date)
     email = db.Column(db.String(100))
     telefone = db.Column(db.String(20))
@@ -67,8 +91,12 @@ class Trabalhador(db.Model):
     cidade = db.Column(db.String(100))
     estado = db.Column(db.String(2))
     
+    data_admissao = db.Column(db.Date)
+    data_desligamento = db.Column(db.Date)
+    motivo_desligamento = db.Column(db.String(255))
+    
     status = db.Column(db.String(20), default='Ativo')
-    empresa_id = db.Column(db.Integer, db.ForeignKey('empresas.id'), nullable=False)
+    empresa_id = db.Column(db.Integer, db.ForeignKey('empresas.id'), nullable=True)
 
 # ==========================================
 # ENTIDADE: FATURA (PREPARADA PARA BANCO)
@@ -76,22 +104,20 @@ class Trabalhador(db.Model):
 class Fatura(db.Model):
     __tablename__ = 'faturas'
     id = db.Column(db.Integer, primary_key=True)
-    competencia = db.Column(db.String(7), nullable=False) # Formato: MM/AAAA
+    competencia = db.Column(db.String(7), nullable=False)
     quantidade_vidas = db.Column(db.Integer, nullable=False)
     valor_unitario = db.Column(db.Float, nullable=False)
     valor_total = db.Column(db.Float, nullable=False)
     data_vencimento = db.Column(db.Date, nullable=False)
     
     data_geracao = db.Column(db.DateTime, default=datetime.utcnow)
-    data_pagamento = db.Column(db.DateTime, nullable=True) # Preenchido quando o banco avisar
-    status = db.Column(db.String(20), default='Pendente') # Pendente, Pago, Vencido
+    data_pagamento = db.Column(db.DateTime, nullable=True)
+    status = db.Column(db.String(20), default='Pendente')
     
-    # --- CAMPOS DE INTEGRAÇÃO BANCÁRIA ---
-    gateway_id = db.Column(db.String(100), unique=True, nullable=True) # ID da cobrança no Banco
-    boleto_url = db.Column(db.String(500), nullable=True)             # Link do PDF do Banco
-    linha_digitavel = db.Column(db.String(150), nullable=True)        # Código de barras para copiar
-    pix_copia_e_cola = db.Column(db.Text, nullable=True)              # String do PIX
-    # -------------------------------------
+    gateway_id = db.Column(db.String(100), unique=True, nullable=True)
+    boleto_url = db.Column(db.String(500), nullable=True)
+    linha_digitavel = db.Column(db.String(150), nullable=True)
+    pix_copia_e_cola = db.Column(db.Text, nullable=True)
     
     empresa_id = db.Column(db.Integer, db.ForeignKey('empresas.id'), nullable=False)
 
@@ -103,16 +129,17 @@ class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     senha_hash = db.Column(db.String(512), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default='cliente') # admin, cliente, clinica
+    role = db.Column(db.String(20), nullable=False, default='cliente') # admin, cliente, clinica, contador
     
-    # Se o role for 'cliente', ele pertence a uma Empresa:
     empresa_id = db.Column(db.Integer, db.ForeignKey('empresas.id'), nullable=True)
     empresa = db.relationship('Empresa', backref=db.backref('usuario', uselist=False))
 
-    # Se o role for 'clinica', ele pertence a uma Clínica:
     clinica_id = db.Column(db.Integer, db.ForeignKey('clinicas.id'), nullable=True)
-    # A referência em string 'Clinica' garante que não precisamos fazer um "import" circular aqui!
     clinica = db.relationship('Clinica', backref=db.backref('usuario', uselist=False))
+
+    # Se o role for 'contador', ele pertence a um Escritório:
+    escritorio_id = db.Column(db.Integer, db.ForeignKey('escritorios.id'), nullable=True)
+    escritorio = db.relationship('Escritorio', backref=db.backref('usuarios', lazy=True))
 
     def set_senha(self, senha):
         self.senha_hash = generate_password_hash(senha)

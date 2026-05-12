@@ -45,6 +45,9 @@
                                 <option value="cliente" {{ 'selected' if usuario and usuario.role == 'cliente' else '' }}>
                                     Empresa Cliente (Acesso ao Portal RH)
                                 </option>
+                                <option value="contador" {{ 'selected' if usuario and usuario.role == 'contador' else '' }}>
+                                    Contabilidade (Acesso Multi-Empresas)
+                                </option>
                                 <option value="clinica" {{ 'selected' if usuario and usuario.role == 'clinica' else '' }}>
                                     Clínica / Rede Credenciada (Acesso a Agendamentos)
                                 </option>
@@ -79,8 +82,20 @@
                                 </option>
                                 {% endfor %}
                             </select>
+                        </div>
+
+                        <div class="mb-4" id="escritorioDiv" style="{{ 'display: block;' if usuario and usuario.role == 'contador' else 'display: none;' }}">
+                            <label class="form-label fw-bold text-warning">Vincular a qual Contabilidade?</label>
+                            <select name="escritorio_id" class="form-select border-warning border-opacity-50">
+                                <option value="">Selecione o escritório vinculado...</option>
+                                {% for esc in escritorios %}
+                                <option value="{{ esc.id }}" {{ 'selected' if usuario and usuario.escritorio_id == esc.id else '' }}>
+                                    {{ esc.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
                             <div class="form-text mt-2 small">
-                                <i class="fas fa-info-circle me-1"></i> Usuários 'Clínica' irão gerir apenas os pacientes agendados para a sua unidade.
+                                <i class="fas fa-info-circle me-1"></i> Usuários 'Contador' irão gerir todas as empresas atreladas a este escritório.
                             </div>
                         </div>
 
@@ -100,26 +115,25 @@
 
 {% block scripts %}
 <script>
-    // Função para mostrar/esconder os campos de vínculo dinamicamente
     function toggleVinculos() {
         const role = document.getElementById('roleSelect').value;
         const empresaDiv = document.getElementById('empresaDiv');
         const clinicaDiv = document.getElementById('clinicaDiv');
+        const escritorioDiv = document.getElementById('escritorioDiv');
         
-        // Esconde tudo primeiro
         empresaDiv.style.display = 'none';
         clinicaDiv.style.display = 'none';
+        escritorioDiv.style.display = 'none';
         
-        // Mostra o que for apropriado
         if (role === 'cliente') {
             empresaDiv.style.display = 'block';
         } else if (role === 'clinica') {
             clinicaDiv.style.display = 'block';
+        } else if (role === 'contador') {
+            escritorioDiv.style.display = 'block';
         }
-        // Se for admin, ambos continuam escondidos (none)
     }
 
-    // Executa ao carregar a página para garantir que o formulário abra correto na Edição
     window.onload = toggleVinculos;
 </script>
 {% endblock %}

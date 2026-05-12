@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Notificação Extrajudicial - {{ fatura.empresa.razao_social }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman:wght@400;700&display=swap');
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            background: #fff;
+            margin: 0;
+            padding: 2cm 2.5cm;
+        }
+        h1, h2 { text-align: center; text-transform: uppercase; font-weight: bold; margin-bottom: 1.5cm; }
+        .info-box { border: 1px solid #000; padding: 10px; margin-bottom: 1cm; font-weight: bold; }
+        .content { text-align: justify; margin-bottom: 1.5cm; }
+        .signatures { margin-top: 3cm; text-align: center; }
+        .signature-line { border-top: 1px solid #000; width: 60%; margin: 0 auto 5px auto; }
+        @media print {
+            body { padding: 0; }
+            @page { margin: 2cm; size: A4; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+    <h1>Notificação Extrajudicial de Débito</h1>
+
+    <div class="info-box">
+        NOTIFICADA: {{ fatura.empresa.razao_social }}<br>
+        CNPJ: {{ fatura.empresa.cnpj }}<br>
+        ENDEREÇO: {{ fatura.empresa.logradouro }}, {{ fatura.empresa.numero }} - {{ fatura.empresa.cidade }}/{{ fatura.empresa.estado }}<br>
+        CEP: {{ fatura.empresa.cep }}<br>
+        COMPETÊNCIA EM ATRASO: {{ fatura.competencia }}<br>
+        VALOR DO DÉBITO: R$ {{ "{:,.2f}".format(fatura.valor_total).replace('.', 'X').replace(',', '.').replace('X', ',') }}
+    </div>
+
+    <div class="content">
+        <p>Prezado(a) Senhor(a) Representante Legal,</p>
+        
+        <p>Servimo-nos da presente para <strong>NOTIFICÁ-LO(A) EXTRAJUDICIALMENTE</strong> que consta em nossos registos um débito pendente de pagamento referente aos benefícios do sistema <strong>SindiMedic Saúde</strong>, na competência discriminada acima, conforme acordo coletivo da categoria.</p>
+        
+        <p>O não repasse das contribuições descontadas ou devidas ao sindicato constitui prática de <strong>Apropriação Indébita</strong>, tipificada no <strong>Artigo 168 do Código Penal Brasileiro</strong>, sujeitando os responsáveis às penalidades legais, incluindo reclusão e multa.</p>
+        
+        <p>A persistência na inadimplência acarretará as seguintes medidas:</p>
+        <ul style="margin-top: 0;">
+            <li>Suspensão imediata dos benefícios de saúde (consultas e exames) para todos os vossos funcionários vinculados;</li>
+            <li>Inscrição do CNPJ da Notificada nos órgãos de proteção ao crédito (SPC/Serasa);</li>
+            <li>Ajuizamento da competente Ação de Execução para cobrança forçada dos valores devidos, acrescidos de juros, multas e honorários advocatícios.</li>
+        </ul>
+
+        <p>Desta forma, concedemos o prazo improrrogável de <strong>48 (quarenta e oito) horas</strong> a contar do recebimento desta para a regularização do débito. Caso o pagamento já tenha sido efetuado, solicitamos a gentileza de desconsiderar esta notificação.</p>
+    </div>
+
+    <p style="text-align: right; margin-top: 2cm;">Data da Emissão: {{ data_atual.strftime('%d/%m/%Y') }}</p>
+
+    <div class="signatures">
+        <div class="signature-line"></div>
+        <strong>Departamento Jurídico / Cobrança</strong><br>
+        SindiMedic - Ecossistema Saúde
+    </div>
+
+</body>
+</html>
