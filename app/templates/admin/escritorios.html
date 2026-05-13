@@ -1,0 +1,171 @@
+{% extends "base_portal.html" %}
+
+{% block title %}Escritórios de Contabilidade - SaaS Saúde{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">
+                <i class="fas fa-building-user text-warning me-2"></i>Contabilidades Parceiras
+            </h2>
+            <p class="text-muted">Faça a gestão dos escritórios que controlam múltiplas empresas.</p>
+        </div>
+        <button class="btn btn-warning fw-bold shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#modalNovoEscritorio">
+            <i class="fas fa-plus me-2"></i>Nova Contabilidade
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Nome do Escritório</th>
+                            <th>CNPJ</th>
+                            <th>Contato</th>
+                            <th>Empresas Vinculadas</th>
+                            <th class="text-end pe-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for esc in escritorios %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">{{ esc.nome }}</td>
+                            <td><code class="text-secondary fw-bold">{{ esc.cnpj }}</code></td>
+                            <td>
+                                <div class="small">
+                                    <i class="fas fa-envelope text-muted me-1"></i> {{ esc.email or '-' }}<br>
+                                    <i class="fas fa-phone text-muted me-1"></i> {{ esc.telefone or '-' }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary rounded-pill px-3">{{ esc.empresas|length }} empresas</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEditar{{ esc.id }}" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    
+                                    <form action="{{ url_for('admin.excluir_escritorio', id=esc.id) }}" method="POST" onsubmit="return confirm('Deseja excluir este escritório? (Apenas possível se não houver empresas vinculadas a ele)');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <div class="modal fade text-start" id="modalEditar{{ esc.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow">
+                                    <div class="modal-header bg-light">
+                                        <h5 class="modal-title fw-bold">Editar Contabilidade</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ url_for('admin.editar_escritorio', id=esc.id) }}" method="POST">
+                                        <div class="modal-body p-4">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Nome do Escritório *</label>
+                                                <input type="text" name="nome" class="form-control" value="{{ esc.nome }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">CNPJ *</label>
+                                                <input type="text" name="cnpj" class="form-control cnpj-mask" value="{{ esc.cnpj }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">E-mail</label>
+                                                <input type="email" name="email" class="form-control" value="{{ esc.email }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Telefone</label>
+                                                <input type="text" name="telefone" class="form-control tel-mask" value="{{ esc.telefone }}">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer bg-light">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-warning fw-bold">Salvar Alterações</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-building-user fa-3x text-muted mb-3 opacity-25"></i>
+                                <p class="text-muted">Nenhum escritório de contabilidade cadastrado.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade text-start" id="modalNovoEscritorio" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-plus me-2"></i>Nova Contabilidade</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin.cadastrar_escritorio') }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nome do Escritório *</label>
+                        <input type="text" name="nome" class="form-control bg-light" required placeholder="Ex: Contabilidade Exata">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">CNPJ *</label>
+                        <input type="text" name="cnpj" class="form-control bg-light cnpj-mask" required placeholder="00.000.000/0001-00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">E-mail</label>
+                        <input type="email" name="email" class="form-control bg-light" placeholder="contato@escritorio.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Telefone</label>
+                        <input type="text" name="telefone" class="form-control bg-light tel-mask" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning fw-bold text-dark">Cadastrar Escritório</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Aplica máscaras a todos os inputs que tenham a classe 'cnpj-mask' e 'tel-mask'
+    document.querySelectorAll('.cnpj-mask').forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 14) v = v.slice(0, 14);
+            v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+            v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+            v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+            v = v.replace(/(\d{4})(\d)/, '$1-$2');
+            e.target.value = v;
+        });
+    });
+
+    document.querySelectorAll('.tel-mask').forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+            v = v.replace(/(\d)(\d{4})$/, '$1-$2');
+            e.target.value = v;
+        });
+    });
+</script>
+{% endblock %}
