@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#063F54">
     <meta name="color-scheme" content="light">
 
+    <!-- TAG DO FAVICON ADICIONADA AQUI -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
     <title>{% block title %}{{ config.seo_title if config else 'MEDICSIND | Soluções de Bem-estar Contínuo' }}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{{ config.seo_description if config else 'Soluções inteligentes para gestão do bem-estar, saúde preventiva e acompanhamento contínuo.' }}{% endblock %}">
     <meta name="robots" content="index, follow">

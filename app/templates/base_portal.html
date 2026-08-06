@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MedicSind Saúde - Portal{% endblock %}</title>
+    
+    <!-- TAG DO FAVICON ADICIONADA AQUI -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Importação da biblioteca de ícones FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         body { background-color: #f8faff; font-family: system-ui, -apple-system, sans-serif; }
         
-        /* Estilos da Navbar dependendo do Perfil */
         {% if current_user.role == 'admin' %}
-            .navbar-portal { background-color: #212529; } /* Escuro para Admin */
+            .navbar-portal { background-color: #212529; } 
         {% elif current_user.role == 'contador' %}
-            .navbar-portal { background: linear-gradient(90deg, #6610f2 0%, #6f42c1 100%); } /* Roxo para Contabilidade */
+            .navbar-portal { background: linear-gradient(90deg, #6610f2 0%, #6f42c1 100%); } 
         {% elif current_user.role == 'clinica' %}
-            .navbar-portal { background: linear-gradient(90deg, #198754 0%, #20c997 100%); } /* Verde para Clínicas */
+            .navbar-portal { background: linear-gradient(90deg, #198754 0%, #20c997 100%); } 
         {% else %}
-            .navbar-portal { background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%); } /* Azul para Cliente */
+            .navbar-portal { background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%); } 
         {% endif %}
         
         .navbar-user { font-size: 0.9rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px; margin-left: 15px; }
-        
-        /* Arredondamento suave para os menus suspensos */
         .dropdown-menu { border-radius: 0.5rem; }
         
         {% block extra_style %}{% endblock %}
@@ -34,7 +34,6 @@
 
 <nav class="navbar navbar-expand-xl navbar-dark navbar-portal mb-4 shadow">
     <div class="container">
-        <!-- Logo e Link Dinâmico -->
         <a class="navbar-brand fw-bold" href="
             {% if current_user.role == 'admin' %}{{ url_for('admin.dashboard') }}
             {% elif current_user.role == 'contador' %}{{ url_for('contador_portal.dashboard') }}
@@ -44,7 +43,6 @@
             {% if current_user.role == 'admin' %}
                 <i class="fas fa-heartbeat me-2 text-primary"></i>MedicSind
             {% elif current_user.role == 'contador' %}
-                <!-- Ícone da calculadora para a Contabilidade -->
                 <i class="fas fa-calculator me-2"></i>{{ current_user.escritorio.nome }}
             {% elif current_user.role == 'clinica' %}
                 <i class="fas fa-clinic-medical me-2"></i>{{ current_user.clinica.nome_fantasia or current_user.clinica.razao_social }}
@@ -59,11 +57,9 @@
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav me-auto">
-                <!-- Menus Dinâmicos Agrupados -->
                 {% if current_user.role == 'admin' %}
                     <a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-line me-1"></i> Dashboard</a>
                     
-                    <!-- Dropdown de Cadastros -->
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-users-cog me-1"></i> Cadastros
@@ -73,32 +69,25 @@
                             <a class="dropdown-item py-2" href="{{ url_for('admin.listar_escritorios') }}"><i class="fas fa-calculator me-2 text-primary"></i> Contabilidades</a>
                             <a class="dropdown-item py-2" href="{{ url_for('admin.listar_trabalhadores') }}"><i class="fas fa-users me-2 text-primary"></i> Trabalhadores</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item py-2" href="{{ url_for('admin.listar_usuarios') }}"><i class="fas fa-user-shield me-2 text-primary"></i> Usuários do Sistema</a>
+                            <a class="dropdown-item py-2" href="{{ url_for('admin.listar_usuarios') }}"><i class="fas fa-user-shield me-2 text-primary"></i> Usuários</a>
                         </div>
                     </div>
                     
-                    <!-- Dropdown da Rede Credenciada -->
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-network-wired me-1"></i> Rede Credenciada
                         </a>
                         <div class="dropdown-menu shadow-sm border-0 mt-2">
-                            <a class="dropdown-item py-2" href="{{ url_for('clinicas.listar_clinicas') }}">
-                                <i class="fas fa-hospital me-2 text-primary"></i> Clínicas
-                            </a>
-                            <a class="dropdown-item py-2" href="{{ url_for('clinicas.listar_especialidades') }}">
-                                <i class="fas fa-stethoscope me-2 text-primary"></i> Especialidades
-                            </a>
+                            <a class="dropdown-item py-2" href="{{ url_for('clinicas.listar_clinicas') }}"><i class="fas fa-hospital me-2 text-primary"></i> Clínicas</a>
+                            <a class="dropdown-item py-2" href="{{ url_for('clinicas.listar_especialidades') }}"><i class="fas fa-stethoscope me-2 text-primary"></i> Especialidades</a>
                         </div>
                     </div>
                     
-                    <!-- Dropdown de Gestão Financeira e Dados -->
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-briefcase me-1"></i> Gestão
                         </a>
                         <div class="dropdown-menu shadow-sm border-0 mt-2">
-                            <!-- Novo link para as configurações do site adicionado aqui -->
                             <a class="dropdown-item py-2" href="{{ url_for('admin.config_site') }}"><i class="fas fa-globe me-2 text-primary"></i> Configurações do Site</a>
                             <a class="dropdown-item py-2" href="{{ url_for('admin.central_relatorios') }}"><i class="fas fa-chart-pie me-2 text-primary"></i> Relatórios</a>
                             <a class="dropdown-item py-2" href="{{ url_for('admin.menu_faturamento') }}"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i> Faturamento</a>
@@ -107,13 +96,10 @@
                 
                 {% elif current_user.role == 'contador' %}
                     <a class="nav-link" href="{{ url_for('contador_portal.dashboard') }}"><i class="fas fa-calculator me-1"></i> Hub Multi-Empresas</a>
-                
                 {% elif current_user.role == 'clinica' %}
                     <a class="nav-link" href="{{ url_for('clinica_portal.dashboard') }}"><i class="fas fa-hospital me-1"></i> Painel da Clínica</a>
                     <a class="nav-link" href="{{ url_for('clinica_portal.agenda') }}"><i class="fas fa-calendar-alt me-1"></i> Ver Agenda</a>
-                
                 {% else %}
-                    <!-- Cliente -->
                     <a class="nav-link" href="{{ url_for('cliente.dashboard', slug=current_user.empresa.slug) }}"><i class="fas fa-home me-1"></i> Meu Painel</a>
                     <a class="nav-link" href="{{ url_for('cliente.listar_trabalhadores', slug=current_user.empresa.slug) }}"><i class="fas fa-users me-1"></i> Funcionários</a>
                     <a class="nav-link" href="{{ url_for('cliente.listar_faturas', slug=current_user.empresa.slug) }}"><i class="fas fa-file-invoice-dollar me-1"></i> Minhas Faturas</a>
