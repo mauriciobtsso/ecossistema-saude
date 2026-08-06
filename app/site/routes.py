@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 from app.models import db, Empresa, Usuario, gerar_slug, ConfiguracaoSite, ServicoPortifolio
 import re
 
@@ -95,3 +95,87 @@ def cadastro():
 
     return render_template('site/cadastro.html')
 
+# ==========================================
+# ROTAS DE SEO E INTELIGÊNCIA ARTIFICIAL
+# ==========================================
+
+@site_bp.route('/robots.txt')
+def robots_txt():
+    """Diz aos motores de busca o que podem e não podem indexar"""
+    url_base = request.url_root # Pega o domínio automaticamente (ex: https://medicsind.com.br/)
+    
+    conteudo = f"""User-agent: *
+Disallow: /admin/
+Disallow: /cliente/
+Disallow: /paciente/
+Disallow: /clinica/
+Allow: /
+
+Sitemap: {url_base}sitemap.xml
+"""
+    # Usamos o Response do Flask para devolver texto puro em vez de HTML
+    return Response(conteudo, mimetype="text/plain")
+
+
+@site_bp.route('/sitemap.xml')
+def sitemap_xml():
+    """Mapa do site para o Google indexar as páginas públicas"""
+    url_base = request.url_root.rstrip('/') # Remove a última barra
+    
+    conteudo = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{url_base}/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>{url_base}/cadastro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>{url_base}/termos-de-uso</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>{url_base}/politica-de-privacidade</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>"""
+    
+    # mimetype="application/xml" garante que o navegador e os bots leiam como XML estruturado
+    return Response(conteudo, mimetype="application/xml")
+
+
+@site_bp.route('/llms.txt')
+def llms_txt():
+    """Cartão de visita otimizado para Inteligências Artificiais (LLMs)"""
+    config = obter_configuracoes()
+    url_base = request.url_root
+    
+    # Aqui utilizamos os dados do banco para alimentar a IA!
+    conteudo = f"""# {config.nome_empresa}
+
+> {config.seo_description}
+
+## Sobre o Projeto
+A {config.nome_empresa} é um ecossistema completo de gestão de saúde projetado para conectar Sindicatos, Clínicas, Contabilidades e Trabalhadores. Nossa plataforma automatiza faturamentos, gerencia elegibilidade em tempo real e entrega relatórios inteligentes.
+
+## Principais Soluções
+- Gestão de Vidas e Elegibilidade
+- Hub de Contabilidades (Multi-Empresas)
+- Agendamento e Repasses para Rede Credenciada
+- Faturamento e Cobrança Automatizada
+
+## Links Importantes
+- [Página Inicial]({url_base})
+- [Criar Conta como Empresa]({url_base}cadastro)
+- [Acesso ao Portal Corporativo]({url_base}login)
+
+## Contato
+Para suporte e atendimento comercial, acesse nosso site oficial.
+"""
+    return Response(conteudo, mimetype="text/plain")
