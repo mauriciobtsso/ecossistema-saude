@@ -1,107 +1,106 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Ecossistema Saúde</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#063F54">
+    <title>MedicSind | Acesso corporativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
-        body { 
-            background-color: #f8faff; 
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        .login-card { 
-            border: none; 
-            border-radius: 1rem; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
-        }
-        .brand-icon { 
-            font-size: 3.5rem; 
-            color: #0d6efd; 
-        }
-        .input-group-text {
-            background-color: #fff;
-        }
-        .form-control:focus { 
-            border-color: #0d6efd; 
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); 
-            border-left-color: #ced4da;
-        }
-        .btn-primary { transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
+        :root { --navy:#063f54; --blue:#0b4f8a; --green:#4fcb5b; --teal:#1fae8b; --ink:#123242; --muted:#637983; --border:#dce9ed; --surface:#f4fafb; }
+        * { box-sizing:border-box; }
+        body { min-width:320px; min-height:100vh; color:var(--ink); background:linear-gradient(135deg,#f4fafb 0%,#fff 58%,#effaf1 100%); font-family:"Plus Jakarta Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+        h1,h2,h3,h4,h5,h6,.btn { font-family:"Montserrat",system-ui,sans-serif; }
+        a { color:var(--blue); }
+        .login-shell { min-height:100vh; padding:1.25rem; }
+        .login-layout { width:min(1120px,100%); min-height:680px; margin:auto; overflow:hidden; background:#fff; border:1px solid rgba(220,233,237,.9); border-radius:2rem; box-shadow:0 24px 70px rgba(6,63,84,.12); }
+        .brand-logo { display:block; width:min(245px,72vw); height:auto; object-fit:contain; }
+        .visual-panel .brand-logo { padding:.5rem .65rem; background:#fff; border-radius:.8rem; box-shadow:0 10px 24px rgba(0,0,0,.16); }
+        .brand-logo-footer { width:min(190px,62vw); padding:.35rem .55rem; background:#fff; border-radius:.65rem; }
+        .brand-link { display:inline-block; }
+        .visual-panel { position:relative; display:flex; min-height:680px; align-items:center; padding:clamp(2rem,5vw,5rem); overflow:hidden; background:var(--navy); }
+        .visual-panel::before,.visual-panel::after { position:absolute; content:""; border-radius:50%; pointer-events:none; }
+        .visual-panel::before { width:30rem; height:30rem; top:-15rem; left:-12rem; background:rgba(21,108,179,.36); }
+        .visual-panel::after { width:24rem; height:24rem; right:-10rem; bottom:-12rem; background:rgba(79,203,91,.18); }
+        .visual-content { position:relative; z-index:1; max-width:470px; }
+        .visual-kicker { color:#8be594; font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+        .visual-panel h1 { color:#fff; font-size:clamp(2rem,4vw,3.45rem); font-weight:800; line-height:1.08; }
+        .visual-panel p { max-width:420px; color:#c6d9df; line-height:1.8; }
+        .visual-list { padding:0; margin:2rem 0 0; list-style:none; color:#e0edf0; }
+        .visual-list li { display:flex; gap:.75rem; align-items:flex-start; margin-bottom:1rem; font-size:.9rem; }
+        .visual-list i { margin-top:.2rem; color:var(--green); }
+        .form-panel { display:flex; min-height:680px; align-items:center; padding:clamp(2rem,5vw,5rem); background:#fff; }
+        .form-content { width:min(410px,100%); margin:auto; }
+        .form-heading h2 { color:var(--navy); font-size:clamp(1.65rem,3vw,2.25rem); font-weight:800; }
+        .form-heading p { color:var(--muted); line-height:1.7; }
+        .form-label { color:#46616d; font-size:.73rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .form-control { min-height:52px; color:var(--ink); border:1px solid var(--border); border-radius:.85rem; }
+        .form-control:focus { border-color:var(--blue); box-shadow:0 0 0 .22rem rgba(21,108,179,.14); }
+        .input-group-text { color:var(--blue); background:#f7fbfc; border:1px solid var(--border); border-right:0; border-radius:.85rem 0 0 .85rem; }
+        .input-group .form-control { border-left:0; border-radius:0 .85rem .85rem 0; }
+        .btn-primary { min-height:54px; color:#fff; background:var(--blue); border:0; font-weight:700; }
+        .btn-primary:hover,.btn-primary:focus { color:#fff; background:var(--navy); }
+        .back-link { color:var(--muted); font-size:.82rem; text-decoration:none; }
+        .back-link:hover { color:var(--blue); }
+        .form-footer { color:var(--muted); font-size:.8rem; }
+        :focus-visible { outline:3px solid rgba(79,203,91,.75); outline-offset:3px; }
+        @media (max-width:991.98px) { .login-layout { min-height:auto; } .visual-panel { min-height:360px; padding:3rem 2.5rem; } .form-panel { min-height:520px; padding:3rem 2.5rem; } .visual-list { display:flex; flex-wrap:wrap; gap:1rem 1.5rem; margin-top:1.5rem; } .visual-list li { margin:0; } }
+        @media (max-width:575.98px) { .login-shell { padding:.75rem; } .login-layout { border-radius:1.35rem; } .visual-panel { min-height:315px; padding:2.25rem 1.5rem; } .form-panel { min-height:auto; padding:2.25rem 1.5rem; } .visual-list { display:block; } .visual-list li { margin-bottom:.75rem; font-size:.82rem; } }
+        @media (prefers-reduced-motion:reduce) { *,*::before,*::after { transition-duration:.01ms!important; animation-duration:.01ms!important; } }
     </style>
 </head>
-<body class="d-flex align-items-center py-4 bg-light min-vh-100">
-
-<main class="w-100 m-auto">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
-                
-                <div class="text-center mb-4">
-                    <a href="{{ url_for('site.index') }}" class="text-decoration-none">
-                        <i class="fas fa-heartbeat brand-icon mb-3"></i>
-                        <h3 class="fw-bold text-dark mb-1">Ecossistema Saúde</h3>
+<body>
+    <main class="login-shell d-flex align-items-center">
+        <div class="login-layout row g-0">
+            <section class="visual-panel col-lg-6" aria-labelledby="corporativo-titulo">
+                <div class="visual-content">
+                    <a class="brand-link mb-5" href="{{ url_for('site.index') }}" aria-label="Voltar para a página inicial">
+                        <img class="brand-logo" src="{{ config.logo_url if config is defined and config and config.logo_url else url_for('static', filename='img/logo_medicsind.png') }}" alt="MEDICSIND — Soluções de Bem-estar Contínuo">
                     </a>
-                    <p class="text-muted">Acesso seguro ao portal corporativo</p>
+                    <span class="visual-kicker d-block mb-3">Portal corporativo</span>
+                    <h1 id="corporativo-titulo">Gestão do cuidado com mais clareza.</h1>
+                    <p class="mt-4 mb-0">Acesse sua área para acompanhar soluções, informações e recursos da sua organização.</p>
+                    <ul class="visual-list">
+                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Ambiente exclusivo para empresas e clínicas.</span></li>
+                        <li><i class="fa-solid fa-shield-heart" aria-hidden="true"></i><span>Experiência pensada para uma jornada segura.</span></li>
+                    </ul>
                 </div>
-
-                <div class="card login-card p-4 p-sm-5 bg-white">
-                    
+            </section>
+            <section class="form-panel col-lg-6" aria-labelledby="login-titulo">
+                <div class="form-content">
+                    <div class="form-heading mb-4">
+                        <span class="visual-kicker" style="color:var(--teal)">Bem-vindo de volta</span>
+                        <h2 id="login-titulo" class="mt-2 mb-2">Entrar no portal</h2>
+                        <p class="mb-0">Use suas credenciais para acessar a área corporativa.</p>
+                    </div>
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show text-center small" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
+                                <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar mensagem"></button></div>
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
-
                     <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
-                            <label for="email" class="form-label fw-bold text-secondary small text-uppercase">E-mail de Acesso</label>
-                            <div class="input-group">
-                                <span class="input-group-text border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                                <input type="email" class="form-control border-start-0 ps-0" id="email" name="email" placeholder="seu@email.com" required autofocus>
-                            </div>
+                            <label for="email" class="form-label">E-mail de acesso</label>
+                            <div class="input-group mt-2"><span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span><input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required autofocus></div>
                         </div>
-                        
                         <div class="mb-4">
-                            <div class="d-flex justify-content-between">
-                                <label for="senha" class="form-label fw-bold text-secondary small text-uppercase">Senha</label>
-                                <a href="#" class="text-decoration-none small text-muted">Esqueceu?</a>
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text border-end-0"><i class="fas fa-lock text-muted"></i></span>
-                                <input type="password" class="form-control border-start-0 ps-0" id="senha" name="senha" placeholder="••••••••" required>
-                            </div>
+                            <div class="d-flex justify-content-between align-items-center"><label for="senha" class="form-label mb-0">Senha</label><a href="#" class="small text-muted text-decoration-none">Esqueceu a senha?</a></div>
+                            <div class="input-group mt-2"><span class="input-group-text"><i class="fa-solid fa-lock" aria-hidden="true"></i></span><input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" autocomplete="current-password" required></div>
                         </div>
-
-                        <button class="btn btn-primary w-100 py-2 fw-bold rounded-pill mb-4" type="submit">
-                            Entrar no Portal <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-
-                        <div class="text-center pt-3 border-top">
-                            <span class="text-muted small">Ainda não tem cadastro?</span><br>
-                            <a href="{{ url_for('site.cadastro') }}" class="fw-bold text-decoration-none text-primary">Cadastre sua Empresa Aqui</a>
-                        </div>
+                        <button class="btn btn-primary w-100 rounded-pill" type="submit">Entrar no portal <i class="fa-solid fa-arrow-right ms-2" aria-hidden="true"></i></button>
                     </form>
+                    <div class="form-footer text-center border-top mt-4 pt-4">Ainda não tem cadastro?<br><a href="{{ url_for('site.cadastro') }}" class="fw-bold text-decoration-none">Cadastre sua empresa</a></div>
+                    <div class="text-center mt-4"><a href="{{ url_for('site.index') }}" class="back-link"><i class="fa-solid fa-arrow-left me-1" aria-hidden="true"></i>Voltar para o site principal</a></div>
                 </div>
-
-                <div class="text-center mt-4 text-muted small">
-                    <a href="{{ url_for('site.index') }}" class="text-muted text-decoration-none opacity-75 hover-white">
-                        <i class="fas fa-arrow-left me-1"></i> Voltar para o site principal
-                    </a>
-                </div>
-
-            </div>
+            </section>
         </div>
-    </div>
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

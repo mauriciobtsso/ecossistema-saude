@@ -1,21 +1,36 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.models import db, Empresa, Usuario, gerar_slug
+from app.models import db, Empresa, Usuario, gerar_slug, ConfiguracaoSite, ServicoPortifolio
 import re
 
 # Blueprint do Site Público (sem restrição de login)
 site_bp = Blueprint('site', __name__, template_folder='templates')
 
+def obter_configuracoes():
+    """Garante que sempre exista uma configuração base caso o banco esteja vazio"""
+    config = ConfiguracaoSite.query.first()
+    if not config:
+        config = ConfiguracaoSite()
+        db.session.add(config)
+        db.session.commit()
+    return config
+
 @site_bp.route('/')
 def index():
-    return render_template('site/index.html')
+    # Consulta ao BD para tornar o site dinâmico
+    config = obter_configuracoes()
+    servicos = ServicoPortifolio.query.filter_by(ativo=True).order_by(ServicoPortifolio.ordem).all()
+    
+    return render_template('site/index.html', config=config, servicos=servicos)
 
 @site_bp.route('/termos-de-uso')
 def termos():
-    return render_template('site/termos.html')
+    config = obter_configuracoes()
+    return render_template('site/termos.html', config=config)
 
 @site_bp.route('/politica-de-privacidade')
 def privacidade():
-    return render_template('site/privacidade.html')
+    config = obter_configuracoes()
+    return render_template('site/privacidade.html', config=config)
 
 @site_bp.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -57,13 +72,13 @@ def cadastro():
             telefone=request.form.get('telefone'),
             email=email,
             status='Ativa',
-            valor_por_vida=50.0, # Valor contratual padrão (o admin pode alterar depois)
+            valor_por_vida=50.0, # Valor contratual padrão
             dia_vencimento=10
         )
         nova_empresa.slug = gerar_slug(nova_empresa.nome_fantasia or nova_empresa.razao_social)
         
         db.session.add(nova_empresa)
-        db.session.flush() # Salva temporariamente para gerar o ID da nova empresa
+        db.session.flush()
 
         # 2. Cria o Usuário Administrador (Cliente) atrelado a esta nova empresa
         novo_usuario = Usuario(
@@ -79,3 +94,4 @@ def cadastro():
         return redirect(url_for('auth.login'))
 
     return render_template('site/cadastro.html')
+

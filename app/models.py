@@ -137,7 +137,6 @@ class Usuario(db.Model, UserMixin):
     clinica_id = db.Column(db.Integer, db.ForeignKey('clinicas.id'), nullable=True)
     clinica = db.relationship('Clinica', backref=db.backref('usuario', uselist=False))
 
-    # Se o role for 'contador', ele pertence a um Escritório:
     escritorio_id = db.Column(db.Integer, db.ForeignKey('escritorios.id'), nullable=True)
     escritorio = db.relationship('Escritorio', backref=db.backref('usuarios', lazy=True))
 
@@ -146,3 +145,36 @@ class Usuario(db.Model, UserMixin):
 
     def check_senha(self, senha):
         return check_password_hash(self.senha_hash, senha)
+
+
+# ==========================================
+# GESTÃO DINÂMICA DO SITE (CMS)
+# ==========================================
+class ConfiguracaoSite(db.Model):
+    __tablename__ = 'configuracoes_site'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Dados da Empresa (MedicSind)
+    nome_empresa = db.Column(db.String(100), default="MedicSind")
+    cnpj = db.Column(db.String(20), nullable=True)
+    endereco = db.Column(db.String(255), nullable=True)
+    telefone = db.Column(db.String(20), nullable=True)
+    email_contato = db.Column(db.String(100), nullable=True)
+    logo_url = db.Column(db.String(255), nullable=True)
+    
+    # SEO Semântico
+    seo_title = db.Column(db.String(150), default="MedicSind - Gestão de Vidas com Inteligência")
+    seo_description = db.Column(db.String(255), default="A plataforma completa para RHs que buscam eficiência operacional e saúde acessível.")
+    
+    # Textos de Vendas (Copywriting)
+    hero_titulo = db.Column(db.String(200), default="Gestão de Vidas com <span class='text-primary'>Inteligência.</span>")
+    hero_subtitulo = db.Column(db.Text, default="A plataforma completa para RHs que buscam eficiência operacional e saúde acessível para todos os seus colaboradores.")
+
+class ServicoPortifolio(db.Model):
+    __tablename__ = 'servicos_portifolio'
+    id = db.Column(db.Integer, primary_key=True)
+    titulo = db.Column(db.String(100), nullable=False)
+    descricao = db.Column(db.Text, nullable=False)
+    icone = db.Column(db.String(50), default="fas fa-star") # Para podermos usar os ícones do FontAwesome
+    ordem = db.Column(db.Integer, default=0)
+    ativo = db.Column(db.Boolean, default=True)

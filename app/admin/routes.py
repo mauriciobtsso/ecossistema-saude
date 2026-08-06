@@ -1,6 +1,7 @@
 import os
 from flask import Blueprint, render_template, request, redirect, url_for, abort, flash, jsonify
 from ..models import db, Empresa, Trabalhador, Fatura, Usuario, gerar_slug, Escritorio
+from app.models import ConfiguracaoSite, ServicoPortifolio
 from datetime import datetime
 from sqlalchemy import func
 from ..auth import admin_required
@@ -536,3 +537,90 @@ def gatilho_faturamento_externo():
     from app.tasks import processar_faturamento_automatico
     processar_faturamento_automatico()
     return "Faturamento concluído com sucesso!", 200
+
+# ==========================================
+# GESTÃO DO SITE (CMS / PÁGINA DE VENDAS)
+# ==========================================
+
+@admin_bp.route('/site/configuracoes', methods=['GET', 'POST'])
+@admin_required
+def config_site():
+    """Rota para editar as informações gerais do site e SEO"""
+    config = ConfiguracaoSite.query.first()
+    if not config:
+        config = ConfiguracaoSite()
+        db.session.add(config)
+        db.session.commit()
+
+    if request.method == 'POST':
+        config.nome_empresa = request.form.get('nome_empresa')
+        config.cnpj = request.form.get('cnpj')
+        config.telefone = request.form.get('telefone')
+        config.email_contato = request.form.get('email_contato')
+        config.endereco = request.form.get('endereco')
+        
+        config.seo_title = request.form.get('seo_title')
+        config.seo_description = request.form.get('seo_description')
+        config.hero_titulo = request.form.get('hero_titulo')
+        config.hero_subtitulo = request.form.get('hero_subtitulo')
+        config.logo_url = request.form.get('logo_url')
+
+        db.session.commit()
+        flash('Configurações do site atualizadas com sucesso!', 'success')
+        return redirect(url_for('admin.config_site'))
+
+    return render_template('admin/site_config.html', config=config)
+
+@admin_bp.route('/site/servicos')
+@admin_required
+def listar_servicos():
+    """Rota para listar todos os serviços oferecidos na página principal"""
+    servicos = ServicoPortifolio.query.order_by(ServicoPortifolio.ordem).all()
+    return render_template('admin/site_servicos.html', servicos=servicos)
+
+@admin_bp.route('/site/servicos/novo', methods=['GET', 'POST'])
+@admin_required
+def cadastrar_servico():
+    """Rota para criar um novo card de serviço na página de vendas"""
+    if request.method == 'POST':
+        novo_servico = ServicoPortifolio(
+            titulo=request.form.get('titulo'),
+            descricao=request.form.get('descricao'),
+            icone=request.form.get('icone', 'fas fa-star'),
+            ordem=int(request.form.get('ordem') or 0),
+            ativo=True if request.form.get('ativo') else False
+        )
+        db.session.add(novo_servico)
+        db.session.commit()
+        flash('Novo serviço adicionado ao portfólio!', 'success')
+        return redirect(url_for('admin.listar_servicos'))
+        
+    return render_template('admin/form_servico.html', servico=None)
+
+@admin_bp.route('/site/servicos/editar/<int:id>', methods=['GET', 'POST'])
+@admin_required
+def editar_servico(id):
+    """Rota para editar um serviço existente"""
+    servico = ServicoPortifolio.query.get_or_404(id)
+    if request.method == 'POST':
+        servico.titulo = request.form.get('titulo')
+        servico.descricao = request.form.get('descricao')
+        servico.icone = request.form.get('icone')
+        servico.ordem = int(request.form.get('ordem') or 0)
+        servico.ativo = True if request.form.get('ativo') else False
+
+        db.session.commit()
+        flash('Serviço atualizado com sucesso!', 'success')
+        return redirect(url_for('admin.listar_servicos'))
+        
+    return render_template('admin/form_servico.html', servico=servico)
+
+@admin_bp.route('/site/servicos/excluir/<int:id>', methods=['POST'])
+@admin_required
+def excluir_servico(id):
+    """Rota para deletar um serviço do site"""
+    servico = ServicoPortifolio.query.get_or_404(id)
+    db.session.delete(servico)
+    db.session.commit()
+    flash('Serviço removido do site.', 'success')
+    return redirect(url_for('admin.listar_servicos'))

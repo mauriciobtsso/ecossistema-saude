@@ -1,98 +1,159 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Ecossistema Saúde{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#063F54">
+    <meta name="color-scheme" content="light">
+
+    <title>{% block title %}{{ config.seo_title if config else 'MEDICSIND | Soluções de Bem-estar Contínuo' }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ config.seo_description if config else 'Soluções inteligentes para gestão do bem-estar, saúde preventiva e acompanhamento contínuo.' }}{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ request.url if request is defined else '' }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:title" content="{{ config.seo_title if config else 'MEDICSIND | Soluções de Bem-estar Contínuo' }}">
+    <meta property="og:description" content="{{ config.seo_description if config else 'Soluções inteligentes para gestão do bem-estar, saúde preventiva e acompanhamento contínuo.' }}">
+    {% if config and config.logo_url %}<meta property="og:image" content="{{ config.logo_url }}">{% endif %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
     <style>
-        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .navbar-brand { font-weight: 800; color: #0d6efd !important; font-size: 1.5rem;}
-        footer { background-color: #1a1d20; color: #adb5bd; }
-        .footer-link { color: #adb5bd; text-decoration: none; transition: 0.3s; }
-        .footer-link:hover { color: #fff; }
-        /* Ajuste do botão mobile da navbar */
-        .navbar-toggler { border: none; }
-        .navbar-toggler:focus { box-shadow: none; outline: none; }
+        :root {
+            --ms-navy: #063f54;
+            --ms-blue-deep: #0b4f8a;
+            --ms-blue: #156cb3;
+            --ms-teal: #1fae8b;
+            --ms-green: #4fcb5b;
+            --ms-green-soft: #eaf9ed;
+            --ms-ink: #123242;
+            --ms-muted: #5f7480;
+            --ms-border: #dce9ed;
+            --ms-surface: #f5fafb;
+            --ms-shadow: 0 18px 50px rgba(6, 63, 84, .10);
+            --ms-radius: 1.25rem;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            min-width: 320px;
+            color: var(--ms-ink);
+            background: #fff;
+            font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1, h2, h3, h4, h5, h6, .navbar-brand, .btn { font-family: "Montserrat", system-ui, sans-serif; }
+        h1, h2, h3, h4, h5, h6 { color: var(--ms-navy); letter-spacing: -.035em; }
+        a { color: var(--ms-blue-deep); }
+        .skip-link { position: absolute; left: 1rem; top: -5rem; z-index: 2000; padding: .75rem 1rem; color: #fff; background: var(--ms-navy); border-radius: .5rem; }
+        .skip-link:focus { top: 1rem; }
+
+        .site-header { background: rgba(255,255,255,.94); border-bottom: 1px solid rgba(220,233,237,.85); backdrop-filter: blur(14px); }
+        .navbar { min-height: 76px; }
+        .navbar-brand { display: inline-flex; align-items: center; gap: .7rem; color: var(--ms-navy) !important; font-weight: 800; letter-spacing: .08em; font-size: 1.03rem; }
+        .brand-logo { width: auto; max-width: 190px; max-height: 48px; object-fit: contain; }
+        .site-footer .brand-logo { padding: .35rem .55rem; background: #fff; border-radius: .65rem; }
+        .nav-link { color: var(--ms-ink) !important; font-size: .84rem; font-weight: 600; }
+        .nav-link:hover, .nav-link:focus { color: var(--ms-blue) !important; }
+        .navbar-toggler { border: 1px solid var(--ms-border); border-radius: .7rem; padding: .55rem .7rem; }
+        .navbar-toggler:focus { box-shadow: 0 0 0 .2rem rgba(21,108,179,.15); }
+        .btn { border: 0; font-weight: 700; letter-spacing: -.01em; }
+        .btn-primary { background: var(--ms-blue-deep); }
+        .btn-primary:hover, .btn-primary:focus { background: var(--ms-navy); }
+        .btn-success { background: var(--ms-green); color: #083c23; }
+        .btn-success:hover, .btn-success:focus { background: #3fba4c; color: #062d1b; }
+        .btn-outline-primary { color: var(--ms-blue-deep); border: 1px solid var(--ms-blue-deep); }
+        .btn-outline-primary:hover, .btn-outline-primary:focus { color: #fff; background: var(--ms-blue-deep); }
+        .rounded-pill { border-radius: 999px !important; }
+        .section-kicker { color: var(--ms-teal); font-size: .73rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+        .text-muted { color: var(--ms-muted) !important; }
+        .site-footer { color: #b8cbd2; background: var(--ms-navy); }
+        .site-footer h2, .site-footer h3, .site-footer h4, .site-footer h5, .site-footer h6 { color: #fff; }
+        .footer-link { color: #c6d8de; text-decoration: none; transition: color .2s ease; }
+        .footer-link:hover, .footer-link:focus { color: #fff; }
+        .footer-contact { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); }
+        .footer-contact p:last-child { margin-bottom: 0; }
+        :focus-visible { outline: 3px solid rgba(79,203,91,.75); outline-offset: 3px; }
         {% block extra_style %}{% endblock %}
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
+    <a class="skip-link" href="#conteudo-principal">Saltar para o conteúdo principal</a>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-2 py-lg-3">
-    <div class="container">
-        <a class="navbar-brand" href="{{ url_for('site.index') }}">
-            <i class="fas fa-heartbeat me-2"></i>Ecossistema Saúde
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center text-center mt-3 mt-lg-0">
-                <li class="nav-item mb-2 mb-lg-0"><a class="nav-link px-3 fw-medium" href="{{ url_for('site.index') }}#beneficios">Benefícios</a></li>
-                <li class="nav-item mb-3 mb-lg-0"><a class="nav-link px-3 fw-medium" href="{{ url_for('site.index') }}#funcionalidades">Funcionalidades</a></li>
-                
-                <li class="nav-item ms-lg-3 mb-2 mb-lg-0">
-                    <a class="btn btn-outline-success rounded-pill px-4 w-100 w-lg-auto fw-bold" href="{{ url_for('paciente.login') }}">
-                        <i class="fas fa-mobile-alt me-2"></i>Sou Trabalhador
-                    </a>
-                </li>
-                
-                <li class="nav-item ms-lg-2">
-                    <a class="btn btn-primary rounded-pill px-4 w-100 w-lg-auto fw-bold" href="{{ url_for('auth.login') }}">
-                        <i class="fas fa-building me-2"></i>Sou Empresa/Clínica
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+    <header class="site-header sticky-top">
+        <nav class="navbar navbar-expand-lg" aria-label="Navegação principal">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('site.index') }}" aria-label="{{ config.nome_empresa if config else 'MEDICSIND' }} — início">
+                    <img src="{{ config.logo_url if config and config.logo_url else url_for('static', filename='img/logo_medicsind.png') }}" alt="{{ config.nome_empresa if config else 'MEDICSIND' }} — Soluções de Bem-estar Contínuo" class="brand-logo">
+                </a>
 
-<main class="flex-grow-1">
-    {% block content %}{% endblock %}
-</main>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-<footer class="py-5 mt-auto">
-    <div class="container text-center text-md-start">
-        <div class="row g-4">
-            <div class="col-12 col-md-4 mb-4 mb-md-0">
-                <h5 class="text-white fw-bold mb-3">
-                    <i class="fas fa-heartbeat me-2 text-primary"></i>Ecossistema Saúde
-                </h5>
-                <p class="small opacity-75 px-3 px-md-0">Simplificando a gestão de benefícios de saúde para empresas que cuidam do seu maior ativo: as pessoas.</p>
-                <div class="d-flex justify-content-center justify-content-md-start gap-3 mt-3">
-                    <a href="#" class="footer-link"><i class="fab fa-linkedin fa-lg"></i></a>
-                    <a href="#" class="footer-link"><i class="fab fa-instagram fa-lg"></i></a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
+                        <li class="nav-item"><a class="nav-link px-lg-3" href="{{ url_for('site.index') }}#solucoes">Soluções</a></li>
+                        <li class="nav-item"><a class="nav-link px-lg-3" href="{{ url_for('site.index') }}#sobre">Por que MEDICSIND</a></li>
+                        <li class="nav-item mt-2 mt-lg-0 ms-lg-2"><a class="btn btn-outline-primary rounded-pill px-4 w-100" href="{{ url_for('paciente.login') }}"><i class="fa-solid fa-id-card me-2" aria-hidden="true"></i>Sou trabalhador</a></li>
+                        <li class="nav-item mt-2 mt-lg-0"><a class="btn btn-primary rounded-pill px-4 w-100" href="{{ url_for('auth.login') }}"><i class="fa-solid fa-building me-2" aria-hidden="true"></i>Sou empresa</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-12 col-md-3 offset-md-1 mb-4 mb-md-0">
-                <h6 class="text-white fw-bold mb-3 text-uppercase">Navegação</h6>
-                <ul class="list-unstyled small">
-                    <li class="mb-2"><a href="{{ url_for('site.index') }}" class="footer-link">Início da Plataforma</a></li>
-                    <li class="mb-2"><a href="{{ url_for('paciente.login') }}" class="footer-link text-success fw-bold">Acesso Paciente (Carteirinha)</a></li>
-                    <li class="mb-2"><a href="{{ url_for('auth.login') }}" class="footer-link">Acesso Corporativo (Login)</a></li>
-                </ul>
-            </div>
-            <div class="col-12 col-md-4">
-                <h6 class="text-white fw-bold mb-3 text-uppercase">Legal & Compliance</h6>
-                <ul class="list-unstyled small mb-3">
-                    <li class="mb-2"><a href="{{ url_for('site.termos') }}" class="footer-link">Termos de Serviço</a></li>
-                    <li class="mb-2"><a href="{{ url_for('site.privacidade') }}" class="footer-link">Política de Privacidade (LGPD)</a></li>
-                </ul>
-                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 mt-3">
-                    <p class="small mb-1"><i class="fas fa-building me-2 opacity-50"></i> CNPJ: 00.000.000/0001-00</p>
-                    <p class="small mb-0"><i class="fas fa-envelope me-2 opacity-50"></i> comercial@ecossistemasaude.com.br</p>
+        </nav>
+    </header>
+
+    <main id="conteudo-principal">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer pt-5 pb-4 mt-auto">
+        <div class="container">
+            <div class="row g-4 g-lg-5">
+                <div class="col-12 col-lg-5">
+                    <a class="navbar-brand text-white mb-3" href="{{ url_for('site.index') }}">
+                        <img src="{{ config.logo_url if config and config.logo_url else url_for('static', filename='img/logo_medicsind.png') }}" alt="{{ config.nome_empresa if config else 'MEDICSIND' }} — Soluções de Bem-estar Contínuo" class="brand-logo">
+                    </a>
+                    <p class="mb-3 mt-3 pe-lg-5">{{ config.seo_description if config else 'Soluções inteligentes para gestão do bem-estar e acompanhamento contínuo.' }}</p>
+                    <div class="d-flex gap-3" aria-label="Redes sociais">
+                        {% if config and config.linkedin_url %}<a class="footer-link" href="{{ config.linkedin_url }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i></a>{% endif %}
+                        {% if config and config.instagram_url %}<a class="footer-link" href="{{ config.instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram fa-lg" aria-hidden="true"></i></a>{% endif %}
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <h2 class="h6 text-uppercase mb-3">Acessos</h2>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="{{ url_for('site.index') }}" class="footer-link">Página inicial</a></li>
+                        <li class="mb-2"><a href="{{ url_for('paciente.login') }}" class="footer-link">Área do trabalhador</a></li>
+                        <li><a href="{{ url_for('auth.login') }}" class="footer-link">Portal da empresa</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                    <h2 class="h6 text-uppercase mb-3">Contato e informações</h2>
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2"><a href="{{ url_for('site.termos') }}" class="footer-link">Termos de serviço</a></li>
+                        <li><a href="{{ url_for('site.privacidade') }}" class="footer-link">Política de privacidade (LGPD)</a></li>
+                    </ul>
+                    <div class="footer-contact rounded-4 p-3 small">
+                        {% if config and config.cnpj %}<p><i class="fa-regular fa-id-card me-2" aria-hidden="true"></i>{{ config.cnpj }}</p>{% endif %}
+                        {% if config and config.email_contato %}<p><i class="fa-regular fa-envelope me-2" aria-hidden="true"></i>{{ config.email_contato }}</p>{% endif %}
+                        {% if config and config.telefone %}<p><i class="fa-solid fa-phone me-2" aria-hidden="true"></i>{{ config.telefone }}</p>{% endif %}
+                        {% if config and config.endereco %}<p><i class="fa-solid fa-location-dot me-2" aria-hidden="true"></i>{{ config.endereco }}</p>{% endif %}
+                    </div>
                 </div>
             </div>
+            <hr class="border-light opacity-25 my-4">
+            <p class="small mb-0 opacity-75">&copy; 2026 {{ config.nome_empresa if config else 'MEDICSIND' }}. Todos os direitos reservados.</p>
         </div>
-        <hr class="my-4 border-secondary opacity-25">
-        <div class="small opacity-50">
-            &copy; 2024 Ecossistema Saúde. Todos os direitos reservados.
-        </div>
-    </div>
-</footer>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,68 +1,105 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Acesso Paciente - SindiMedic</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#063F54">
+    <title>MedicSind | Acesso do trabalhador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
-        body { background-color: #f0f4f8; font-family: system-ui, -apple-system, sans-serif; }
-        .login-card { border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        :root { --navy:#063f54; --blue:#0b4f8a; --green:#4fcb5b; --teal:#1fae8b; --ink:#123242; --muted:#637983; --border:#dce9ed; }
+        * { box-sizing:border-box; }
+        body { min-width:320px; min-height:100vh; color:var(--ink); background:linear-gradient(135deg,#f4fafb 0%,#fff 58%,#effaf1 100%); font-family:"Plus Jakarta Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+        h1,h2,h3,h4,h5,h6,.btn { font-family:"Montserrat",system-ui,sans-serif; }
+        a { color:var(--blue); }
+        .login-shell { min-height:100vh; padding:1.25rem; }
+        .login-layout { width:min(1120px,100%); min-height:680px; margin:auto; overflow:hidden; background:#fff; border:1px solid rgba(220,233,237,.9); border-radius:2rem; box-shadow:0 24px 70px rgba(6,63,84,.12); }
+        .brand-logo { display:block; width:min(245px,72vw); height:auto; object-fit:contain; }
+        .visual-panel .brand-logo { padding:.5rem .65rem; background:#fff; border-radius:.8rem; box-shadow:0 10px 24px rgba(0,0,0,.16); }
+        .visual-panel { position:relative; display:flex; min-height:680px; align-items:center; padding:clamp(2rem,5vw,5rem); overflow:hidden; background:linear-gradient(145deg,var(--blue),var(--teal) 64%,var(--green)); }
+        .visual-panel::before,.visual-panel::after { position:absolute; content:""; border:1px solid rgba(255,255,255,.22); border-radius:50%; pointer-events:none; }
+        .visual-panel::before { width:30rem; height:30rem; top:-15rem; left:-12rem; }
+        .visual-panel::after { width:24rem; height:24rem; right:-10rem; bottom:-12rem; border-color:rgba(255,255,255,.18); }
+        .visual-content { position:relative; z-index:1; max-width:470px; }
+        .visual-kicker { color:#e2ffe4; font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+        .visual-panel h1 { color:#fff; font-size:clamp(2rem,4vw,3.45rem); font-weight:800; line-height:1.08; }
+        .visual-panel p { max-width:420px; color:#effff0; line-height:1.8; }
+        .access-badge { display:inline-flex; align-items:center; gap:.65rem; padding:.75rem 1rem; color:#fff; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; font-size:.8rem; font-weight:700; }
+        .access-badge i { color:#e3ffe3; }
+        .form-panel { display:flex; min-height:680px; align-items:center; padding:clamp(2rem,5vw,5rem); background:#fff; }
+        .form-content { width:min(410px,100%); margin:auto; }
+        .form-heading h2 { color:var(--navy); font-size:clamp(1.65rem,3vw,2.25rem); font-weight:800; }
+        .form-heading p { color:var(--muted); line-height:1.7; }
+        .form-label { color:#46616d; font-size:.73rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .form-control { min-height:56px; color:var(--ink); background:#fff; border:1px solid var(--border); border-radius:.85rem; }
+        .form-control:focus { border-color:var(--blue); box-shadow:0 0 0 .22rem rgba(21,108,179,.14); }
+        .btn-success { min-height:54px; color:#073b22; background:var(--green); border:0; font-weight:700; }
+        .btn-success:hover,.btn-success:focus { color:#073b22; background:#40ba4d; }
+        .back-link { color:var(--muted); font-size:.82rem; text-decoration:none; }
+        .back-link:hover { color:var(--blue); }
+        .security-note { display:flex; gap:.65rem; align-items:flex-start; color:var(--muted); font-size:.78rem; line-height:1.6; }
+        .security-note i { margin-top:.15rem; color:var(--green); }
+        :focus-visible { outline:3px solid rgba(79,203,91,.75); outline-offset:3px; }
+        @media (max-width:991.98px) { .login-layout { min-height:auto; } .visual-panel { min-height:360px; padding:3rem 2.5rem; } .form-panel { min-height:520px; padding:3rem 2.5rem; } }
+        @media (max-width:575.98px) { .login-shell { padding:.75rem; } .login-layout { border-radius:1.35rem; } .visual-panel { min-height:315px; padding:2.25rem 1.5rem; } .form-panel { min-height:auto; padding:2.25rem 1.5rem; } }
+        @media (prefers-reduced-motion:reduce) { *,*::before,*::after { transition-duration:.01ms!important; animation-duration:.01ms!important; } }
     </style>
 </head>
-<body class="d-flex align-items-center min-vh-100 pb-5">
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-6 col-lg-4">
-            
-            <div class="text-center mb-4">
-                <i class="fas fa-heartbeat fa-3x text-primary mb-2"></i>
-                <h3 class="fw-bold text-dark mb-0">SindiMedic Saúde</h3>
-                <p class="text-muted small">Portal do Beneficiário</p>
-            </div>
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} rounded-3 shadow-sm border-0 small">
-                            <i class="fas fa-info-circle me-1"></i> {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <div class="card login-card border-0">
-                <div class="card-body p-4 p-md-5">
-                    <form method="POST">
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-secondary small">Seu CPF</label>
-                            <input type="text" id="cpf" name="cpf" class="form-control form-control-lg bg-light border-0" 
-                                   placeholder="000.000.000-00" inputmode="numeric" required>
-                        </div>
-                        
-                        <div class="mb-5">
-                            <label class="form-label fw-bold text-secondary small">Data de Nascimento</label>
-                            <input type="date" name="data_nascimento" class="form-control form-control-lg bg-light border-0" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow-sm">
-                            Acessar Carteirinha <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-                    </form>
+<body>
+    <main class="login-shell d-flex align-items-center">
+        <div class="login-layout row g-0">
+            <section class="visual-panel col-lg-6" aria-labelledby="trabalhador-titulo">
+                <div class="visual-content">
+                    <a class="d-inline-block mb-5" href="{{ url_for('site.index') }}" aria-label="Voltar para a página inicial">
+                        <img class="brand-logo" src="{{ config.logo_url if config is defined and config and config.logo_url else url_for('static', filename='img/logo_medicsind.png') }}" alt="MEDICSIND — Soluções de Bem-estar Contínuo">
+                    </a>
+                    <span class="visual-kicker d-block mb-3">Área do trabalhador</span>
+                    <h1 id="trabalhador-titulo">Seu cuidado, sempre por perto.</h1>
+                    <p class="mt-4 mb-4">Acesse sua carteirinha e encontre as informações do seu plano de forma simples e segura.</p>
+                    <span class="access-badge"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Acesso protegido</span>
                 </div>
-            </div>
-            
+            </section>
+            <section class="form-panel col-lg-6" aria-labelledby="login-titulo">
+                <div class="form-content">
+                    <div class="form-heading mb-4">
+                        <span class="visual-kicker" style="color:var(--teal)">Acesso rápido</span>
+                        <h2 id="login-titulo" class="mt-2 mb-2">Acessar minha carteirinha</h2>
+                        <p class="mb-0">Informe seus dados para continuar.</p>
+                    </div>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} rounded-3 border-0 small" role="alert"><i class="fa-solid fa-circle-info me-1" aria-hidden="true"></i>{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <form method="POST" action="{{ url_for('paciente.login') }}">
+                        <div class="mb-3">
+                            <label for="cpf" class="form-label">Seu CPF</label>
+                            <input type="text" id="cpf" name="cpf" class="form-control mt-2" placeholder="000.000.000-00" inputmode="numeric" autocomplete="username" required autofocus>
+                        </div>
+                        <div class="mb-4">
+                            <label for="data_nascimento" class="form-label">Data de nascimento</label>
+                            <input type="date" id="data_nascimento" name="data_nascimento" class="form-control mt-2" autocomplete="bday" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill">Acessar carteirinha <i class="fa-solid fa-arrow-right ms-2" aria-hidden="true"></i></button>
+                    </form>
+                    <p class="security-note mt-4 mb-0"><i class="fa-solid fa-lock" aria-hidden="true"></i><span>Seus dados são utilizados apenas para confirmar sua identidade e liberar o acesso.</span></p>
+                    <div class="text-center mt-4"><a href="{{ url_for('site.index') }}" class="back-link"><i class="fa-solid fa-arrow-left me-1" aria-hidden="true"></i>Voltar para o site principal</a></div>
+                </div>
+            </section>
         </div>
-    </div>
-</div>
-
-<script src="https://unpkg.com/imask"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        IMask(document.getElementById('cpf'), { mask: '000.000.000-00' });
-    });
-</script>
+    </main>
+    <script src="https://unpkg.com/imask"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cpf = document.getElementById('cpf');
+            if (cpf && typeof IMask !== 'undefined') IMask(cpf, { mask: '000.000.000-00' });
+        });
+    </script>
 </body>
 </html>

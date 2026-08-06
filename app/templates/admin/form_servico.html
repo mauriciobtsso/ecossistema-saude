@@ -1,0 +1,72 @@
+{% extends "base_portal.html" %}
+
+{% block title %}{{ 'Editar' if servico else 'Novo' }} Serviço - SindiMedic{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="mb-4">
+                <a href="{{ url_for('admin.listar_servicos') }}" class="text-decoration-none text-muted small fw-bold">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar para Lista
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white py-4 border-bottom-0">
+                    <h4 class="mb-0 fw-bold text-dark">{{ 'Editar Serviço' if servico else 'Criar Novo Serviço' }}</h4>
+                    <p class="text-muted small mb-0 mt-1">Este item será exibido na vitrine principal do site.</p>
+                </div>
+                <div class="card-body p-4 pt-2">
+                    <form method="POST">
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Título do Serviço *</label>
+                            <input type="text" name="titulo" class="form-control bg-light form-control-lg" value="{{ servico.titulo if servico else '' }}" required placeholder="Ex: Faturamento Autônomo">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Descrição Curta *</label>
+                            <textarea name="descricao" class="form-control bg-light" rows="3" required placeholder="Explique brevemente o benefício deste serviço...">{{ servico.descricao if servico else '' }}</textarea>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Ícone (FontAwesome) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i id="icon-preview" class="{{ servico.icone if servico else 'fas fa-star' }}"></i></span>
+                                    <input type="text" name="icone" id="icone-input" class="form-control bg-light" value="{{ servico.icone if servico else 'fas fa-star' }}" required>
+                                </div>
+                                <div class="form-text small"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Pesquise ícones grátis aqui</a> e cole a classe (Ex: fas fa-heartbeat)</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Ordem de Exibição</label>
+                                <input type="number" name="ordem" class="form-control bg-light" value="{{ servico.ordem if servico else '0' }}" min="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-5 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="ativoSwitch" name="ativo" value="1" {{ 'checked' if (not servico or servico.ativo) else '' }}>
+                            <label class="form-check-label fw-bold ms-2" for="ativoSwitch">Serviço Ativo e Visível no Site</label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary py-3 fw-bold rounded-pill shadow-sm">
+                                <i class="fas fa-save me-2"></i>{{ 'Salvar Alterações' if servico else 'Publicar Serviço' }}
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script simples para atualizar a pré-visualização do ícone em tempo real -->
+<script>
+    document.getElementById('icone-input').addEventListener('input', function(e) {
+        document.getElementById('icon-preview').className = e.target.value;
+    });
+</script>
+{% endblock %}
